@@ -1,0 +1,17 @@
+# Ignore virtual environments
+virtenv/
+venv/
+
+# Ignore Python cache and compiled files
+__pycache__/
+*.pyc
+
+# Ignore build artifacts
+build/
+dist/
+*.egg-info/
+
+# Ignore system and editor files
+.DS_Store
+*.vscode/
+.ipynb_checkpoints/
