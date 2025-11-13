@@ -1,13 +1,3 @@
-"""
-transfory/insight.py
-
-InsightReporter — the educational heart of Transfory.
-Collects transformation logs from each step and generates
-a clear, human-readable report of what happened to the data.
-
-Author: [Your Name]
-"""
-
 from __future__ import annotations
 import pandas as pd
 import json

@@ -1,10 +1,3 @@
-"""
-transfory/pipeline.py
-
-Pipeline module for Transfory.
-Allows chaining multiple BaseTransformers into a single unified workflow.
-"""
-
 from __future__ import annotations
 from typing import Any, Dict, List, Optional, Tuple
 import pandas as pd

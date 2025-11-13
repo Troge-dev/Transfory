@@ -1,11 +1,3 @@
-"""
-tests/test_pipeline.py
-
-Unit tests for the Transfory Pipeline.
-Run this file using:
-    python -m tests.test_pipeline
-"""
-
 import pandas as pd
 from transfory.base import ExampleScaler
 from transfory.pipeline import Pipeline

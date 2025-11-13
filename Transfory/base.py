@@ -1,9 +1,3 @@
-"""
-transfory/base.py
-
-Professional BaseTransformer for Transfory.
-"""
-
 from __future__ import annotations
 import abc
 import pickle
