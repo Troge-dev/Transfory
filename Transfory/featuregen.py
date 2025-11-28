@@ -1,18 +1,19 @@
 import pandas as pd
 from itertools import combinations
-from .base import Transformer
+from .base import BaseTransformer as Transformer
 
 class FeatureGenerator(Transformer):
     def __init__(self, degree=2, include_interactions=True):
+        super().__init__()
         self.degree = degree
         self.include_interactions = include_interactions
         self.columns_ = []
 
-    def fit(self, X: pd.DataFrame):
+    def _fit(self, X: pd.DataFrame, y=None):
+        # Only select numeric columns
         self.columns_ = list(X.select_dtypes(include="number").columns)
-        return self
 
-    def transform(self, X: pd.DataFrame):
+    def _transform(self, X: pd.DataFrame) -> pd.DataFrame:
         X = X.copy()
 
         # Polynomial features
