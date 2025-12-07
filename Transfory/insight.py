@@ -52,6 +52,68 @@ class InsightReporter:
         }
         self._logs.append(event)
 
+    def _format_log_entry(self, log: Dict[str, Any]) -> str:
+        """Generates a human-readable explanation for a single log entry."""
+        step_name = log.get("step", "Unknown Step")
+        event = log.get("event", "unknown")
+        details = log.get("details", {})
+        transformer_name = details.get("transformer", step_name).lower()
+
+        # Default message
+        explanation = f"Step '{step_name}' completed a '{event}' event."
+
+        # --- Custom Explanations for Different Transformers ---
+
+        # MissingValueHandler
+        if "missingvaluehandler" in transformer_name and event == "fit":
+            params = details.get("fitted_params", {})
+            fill_values = params.get("fill_values", {})
+            if fill_values:
+                cols = list(fill_values.keys())
+                strategy = self._get_strategy_from_name(step_name)
+                return f"Imputer '{step_name}' fitted. Will use '{strategy}' on {len(cols)} column(s): {cols}."
+            return f"Imputer '{step_name}' fitted, but no missing values were found to handle."
+
+        # Encoder
+        if "encoder" in transformer_name and event == "fit":
+            params = details.get("fitted_params", {})
+            mappings = params.get("mappings", {})
+            if mappings:
+                cols = list(mappings.keys())
+                method = self._get_method_from_name(step_name)
+                return f"Encoder '{step_name}' fitted. Will apply '{method}' encoding to {len(cols)} column(s): {cols}."
+            return f"Encoder '{step_name}' fitted, but no categorical columns were found to encode."
+
+        # Scaler
+        if "scaler" in transformer_name and event == "fit":
+            params = details.get("fitted_params", {})
+            cols = params.get("columns", [])
+            if len(cols) > 0:
+                method = self._get_method_from_name(step_name)
+                return f"Scaler '{step_name}' fitted. Will apply '{method}' scaling to {len(cols)} column(s): {list(cols)}."
+            return f"Scaler '{step_name}' fitted, but no numeric columns were found to scale."
+
+        # FeatureGenerator
+        if "featuregenerator" in transformer_name and event == "transform":
+            new_features = details.get("new_features_created", [])
+            if new_features:
+                return f"Feature Generator '{step_name}' created {len(new_features)} new feature(s), including '{new_features[0]}'..."
+            return f"Feature Generator '{step_name}' created 0 new features."
+
+        return explanation
+
+    def _get_strategy_from_name(self, name: str) -> str:
+        """Helper to extract strategy from a transformer name like 'MissingValueHandler(strategy='mean')'."""
+        if "strategy='" in name:
+            return name.split("strategy='")[1].split("'")[0]
+        return "unknown"
+
+    def _get_method_from_name(self, name: str) -> str:
+        """Helper to extract method from a transformer name like 'Encoder(method='onehot')'."""
+        if "method='" in name:
+            return name.split("method='")[1].split("'")[0]
+        return "unknown"
+
     def summary(self, as_dataframe: bool = False) -> Any:
         """
         Summarize logged transformations in a readable format.
@@ -75,11 +137,7 @@ class InsightReporter:
             "",
         ]
         for log in self._logs:
-            lines.append(f"[{log['timestamp']}] Step: {log['step']} | Event: {log['event']}")
-            details = log.get("details", {})
-            for k, v in details.items():
-                lines.append(f"   - {k}: {v}")
-            lines.append("")
+            lines.append(f"[{log['timestamp']}] {self._format_log_entry(log)}")
         return "\n".join(lines)
 
     def clear(self) -> None:

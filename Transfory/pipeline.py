@@ -28,7 +28,7 @@ class Pipeline(BaseTransformer):
                  logging_callback: Optional[callable] = None):
         super().__init__(name=name or "Pipeline", logging_callback=logging_callback)
         self.steps: List[Tuple[str, BaseTransformer]] = steps
-        self._validate_steps()
+        self._validate_steps() # This remains
 
     # ------------------------------
     # Validation
@@ -50,10 +50,24 @@ class Pipeline(BaseTransformer):
     # ------------------------------
     def _fit(self, X: pd.DataFrame, y: Optional[pd.Series] = None) -> None:
         current_data = X
-        for name, transformer in self.steps:
-            self._log("fit_start", {"step": name, "shape": current_data.shape})
-            transformer.fit(current_data, y)
-            current_data = transformer.transform(current_data)
+        last_step_idx = len(self.steps) - 1
+        for i, (name, transformer) in enumerate(self.steps):
+            original_callback, original_name = None, None
+            if self._logging_callback:
+                # Temporarily assign the pipeline's callback and the specific step name
+                # so the transformer logs with the correct context.
+                original_callback, transformer._logging_callback = transformer._logging_callback, self._logging_callback
+                original_name, transformer.name = transformer.name, name
+
+            self._log("fit_step_start", {"step": name, "shape": current_data.shape})
+            if i < last_step_idx:
+                current_data = transformer.fit_transform(current_data, y)
+            else: # For the last step, just fit.
+                transformer.fit(current_data, y)
+            
+            if self._logging_callback:
+                transformer._logging_callback, transformer.name = original_callback, original_name # Restore
+
             self._log("fit_end", {"step": name, "output_shape": current_data.shape})
 
         self._fitted_params = {
@@ -67,9 +81,49 @@ class Pipeline(BaseTransformer):
     def _transform(self, X: pd.DataFrame) -> pd.DataFrame:
         current_data = X
         for name, transformer in self.steps:
+            original_callback, original_name = None, None
+            if self._logging_callback:
+                # Temporarily assign callback and name for correct logging context
+                original_callback, transformer._logging_callback = transformer._logging_callback, self._logging_callback
+                original_name, transformer.name = transformer.name, name
+
             self._log("transform_step", {"step": name, "input_shape": current_data.shape})
             current_data = transformer.transform(current_data)
+
+            if self._logging_callback:
+                transformer._logging_callback, transformer.name = original_callback, original_name # Restore
+
             self._log("transform_done", {"step": name, "output_shape": current_data.shape})
+        return current_data
+
+    def fit_transform(self, X: pd.DataFrame, y: Optional[pd.Series] = None) -> pd.DataFrame:
+        """
+        Fit all transformers and transform the data.
+
+        This overrides the base `fit_transform` to provide a more efficient
+        implementation for pipelines, avoiding a redundant final transform.
+        """
+        if self._frozen:
+            raise FrozenTransformerError(f"Transformer {self.name} is frozen and cannot be refit.")
+
+        self._validate_input(X)
+        current_data = X
+        for name, transformer in self.steps:
+            original_callback, original_name = None, None
+            if self._logging_callback:
+                # Temporarily assign callback and name for correct logging context
+                original_callback, transformer._logging_callback = transformer._logging_callback, self._logging_callback
+                original_name, transformer.name = transformer.name, name
+
+            self._log("fit_transform_step", {"step": name, "input_shape": current_data.shape})
+            current_data = transformer.fit_transform(current_data, y)
+
+            if self._logging_callback:
+                transformer._logging_callback, transformer.name = original_callback, original_name # Restore
+
+            self._log("fit_transform_done", {"step": name, "output_shape": current_data.shape})
+
+        self._is_fitted = True
         return current_data
 
     # ------------------------------

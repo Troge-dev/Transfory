@@ -1,30 +1,48 @@
 import pandas as pd
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from .base import BaseTransformer as Transformer
 
+
 class Scaler(Transformer):
+    """
+    A wrapper for scikit-learn's scaling transformers.
+
+    Applies a specified scaling method to all numerical columns in a DataFrame.
+
+    Methods:
+    - 'minmax':  Wraps sklearn.preprocessing.MinMaxScaler.
+    - 'zscore': Wraps sklearn.preprocessing.StandardScaler.
+    """
+
     def __init__(self, method="minmax"):
-        super().__init__()
+        super().__init__(name=f"Scaler(method='{method}')")
         self.method = method
-        self.params = {}
+
+        # Map method names to scikit-learn scaler classes
+        scaler_map = {
+            "minmax": MinMaxScaler,
+            "zscore": StandardScaler,
+        }
+
+        if method not in scaler_map:
+            raise ValueError(f"Method '{method}' is not supported. Available methods: {list(scaler_map.keys())}")
+
+        # The internal scikit-learn scaler instance
+        self._scaler = scaler_map[method]()
+        self._columns_to_scale = None
 
     def _fit(self, X: pd.DataFrame, y=None):
-        num_cols = X.select_dtypes(include="number").columns
-        for col in num_cols:
-            if self.method == "minmax":
-                self.params[col] = (X[col].min(), X[col].max())
-            elif self.method == "zscore":
-                self.params[col] = (X[col].mean(), X[col].std())
+        """Fit the scaler on the numerical columns of X."""
+        self._columns_to_scale = X.select_dtypes(include="number").columns
+        if not self._columns_to_scale.empty:
+            self._scaler.fit(X[self._columns_to_scale])
+
+        # Store the fitted scaler for persistence and inspection, per BaseTransformer design
+        self._fitted_params["scaler_instance"] = self._scaler
+        self._fitted_params["columns"] = self._columns_to_scale
 
     def _transform(self, X: pd.DataFrame) -> pd.DataFrame:
-        X = X.copy()
-        for col, p in self.params.items():
-            if self.method == "minmax":
-                mn, mx = p
-                X[col] = (X[col] - mn) / (mx - mn + 1e-9)
-            elif self.method == "zscore":
-                mean, std = p
-                X[col] = (X[col] - mean) / (std + 1e-9)
+        """Transform the numerical columns of X using the fitted scaler."""
+        if self._columns_to_scale is not None and not self._columns_to_scale.empty:
+            X[self._columns_to_scale] = self._scaler.transform(X[self._columns_to_scale])
         return X
-
-    def __repr__(self):
-        return f"Scaler(method='{self.method}')"
