@@ -40,6 +40,7 @@ FeatureGenerator(
 ## Generated Future Types
 
 | Feature Type | Description |
+| ------------ | ----------- |
 | Polynomial Features | Generates powers of each numeric column: `x², x³, ..., x^degree` |
 | Interaction Terms | Generates pairwise products: `col1_x_col2` |
 
