@@ -20,9 +20,10 @@ def test_pipeline_with_insight_reporter(sample_dataframe):
     reporter = InsightReporter()
 
     # Build a pipeline and attach the reporter's callback
-    pipe = Pipeline([
-        ("scale", ExampleScaler(logging_callback=reporter.get_callback()))
-    ])
+    pipe = Pipeline(
+        [("scale", ExampleScaler())],
+        logging_callback=reporter.get_callback()
+    )
 
     # Run the pipeline
     pipe.fit_transform(sample_dataframe)
@@ -30,4 +31,4 @@ def test_pipeline_with_insight_reporter(sample_dataframe):
     assert "ExampleScaler" in summary
     assert "fit" in summary
     assert "transform" in summary
-    assert len(reporter._logs) == 2  # One for fit, one for transform
+    assert len(reporter._logs) == 4  # Pipeline logs start/end, and the transformer logs fit/transform

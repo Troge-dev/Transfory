@@ -45,11 +45,11 @@ class InsightReporter:
         Append a transformation event to the log.
         Automatically timestamps each entry.
         """
+        # Unpack the received payload for richer, more structured logs.
         event = {
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "step": step_name,
-            "event": payload.get("event", "unknown"),
-            "details": payload.get("details", {}),
+            **payload,
         }
         self._logs.append(event)
 
@@ -58,44 +58,49 @@ class InsightReporter:
         step_name = log.get("step", "Unknown Step")
         event = log.get("event", "unknown")
         details = log.get("details", {})
-        transformer_name = details.get("transformer", step_name).lower()
+        # Get the original transformer name for display, and a lowercase version for logic.
+        display_transformer_name = log.get("transformer_name", step_name)
+        logic_transformer_name = display_transformer_name.lower()
+        config = log.get("config", {})
 
         # Default message
-        explanation = f"Step '{step_name}' completed a '{event}' event."
+        explanation = f"Step '{step_name}' ({display_transformer_name}) completed a '{event}' event."
+        if step_name.lower() == logic_transformer_name:
+             explanation = f"Step '{step_name}' completed a '{event}' event."
 
         # --- Custom Explanations for Different Transformers ---
 
         # MissingValueHandler
-        if "missingvaluehandler" in transformer_name and event == "fit":
+        if "missingvaluehandler" in logic_transformer_name and event == "fit":
             cols = self._get_fitted_columns(details, "fill_values")
             if cols:
-                strategy = self._get_strategy_from_name(step_name)
-                return f"Imputer '{step_name}' fitted. Will use '{strategy}' on {len(cols)} column(s): {list(cols)}."
+                strategy = config.get("strategy", "unknown")
+                return f"Step '{step_name}' (MissingValueHandler) fitted. Will use '{strategy}' on {len(cols)} column(s): {list(cols)}."
             return f"Imputer '{step_name}' fitted, but no missing values were found to handle."
 
         # Encoder
-        if "encoder" in transformer_name and event == "fit":
+        if "encoder" in logic_transformer_name and event == "fit":
             params = details.get("fitted_params", {})
             mappings = params.get("mappings", {})
             if mappings:
                 cols = list(mappings.keys()) # Mappings are dicts of {col: mapping}
-                method = self._get_method_from_name(step_name)
-                return f"Encoder '{step_name}' fitted. Will apply '{method}' encoding to {len(cols)} column(s): {cols}."
+                method = config.get("method", "unknown")
+                return f"Step '{step_name}' (Encoder) fitted. Will apply '{method}' encoding to {len(cols)} column(s): {cols}."
             return f"Encoder '{step_name}' fitted, but no categorical columns were found to encode."
 
         # Scaler
-        if "scaler" in transformer_name and event == "fit":
+        if "scaler" in logic_transformer_name and event == "fit":
             cols = self._get_fitted_columns(details, "columns")
             if cols:
-                method = self._get_method_from_name(step_name)
-                return f"Scaler '{step_name}' fitted. Will apply '{method}' scaling to {len(cols)} column(s): {cols}."
+                method = config.get("method", "unknown")
+                return f"Step '{step_name}' (Scaler) fitted. Will apply '{method}' scaling to {len(cols)} column(s): {cols}."
             return f"Scaler '{step_name}' fitted, but no numeric columns were found to scale."
 
         # FeatureGenerator
-        if "featuregenerator" in transformer_name and event == "transform":
+        if "featuregenerator" in logic_transformer_name and event == "transform":
             new_features = details.get("new_features_created", [])
             if new_features:
-                return f"Feature Generator '{step_name}' created {len(new_features)} new feature(s), including '{new_features[0]}'..."
+                return f"Step '{step_name}' (FeatureGenerator) created {len(new_features)} new feature(s), including '{new_features[0]}'..."
             return f"Feature Generator '{step_name}' created 0 new features."
 
         return explanation
@@ -109,16 +114,6 @@ class InsightReporter:
         if isinstance(values, (list, pd.Index)):
             return list(values)
         return []
-
-    def _get_strategy_from_name(self, name: str) -> str:
-        """Helper to extract strategy from a transformer name like 'MissingValueHandler(strategy='mean')'."""
-        match = re.search(r"strategy='([^']*)'", name)
-        return match.group(1) if match else "unknown"
-
-    def _get_method_from_name(self, name: str) -> str:
-        """Helper to extract method from a transformer name like 'Encoder(method='onehot')'."""
-        match = re.search(r"method='([^']*)'", name)
-        return match.group(1) if match else "unknown"
 
     def summary(self, as_dataframe: bool = False) -> Any:
         """

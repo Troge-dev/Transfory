@@ -52,21 +52,14 @@ class Pipeline(BaseTransformer):
         current_data = X
         last_step_idx = len(self.steps) - 1
         for i, (name, transformer) in enumerate(self.steps):
-            original_callback, original_name = None, None
-            if self._logging_callback:
-                # Temporarily assign the pipeline's callback and the specific step name
-                # so the transformer logs with the correct context.
-                original_callback, transformer._logging_callback = transformer._logging_callback, self._logging_callback
-                original_name, transformer.name = transformer.name, name
+            # Pass the pipeline's callback and the step name to the transformer
+            transformer._logging_callback = lambda step_name, payload: self._logging_callback(name, payload) if self._logging_callback else None
 
             self._log("fit_step_start", {"step": name, "shape": current_data.shape})
             if i < last_step_idx:
                 current_data = transformer.fit_transform(current_data, y)
             else: # For the last step, just fit.
                 transformer.fit(current_data, y)
-            
-            if self._logging_callback:
-                transformer._logging_callback, transformer.name = original_callback, original_name # Restore
 
             self._log("fit_end", {"step": name, "output_shape": current_data.shape})
 
@@ -81,17 +74,11 @@ class Pipeline(BaseTransformer):
     def _transform(self, X: pd.DataFrame) -> pd.DataFrame:
         current_data = X
         for name, transformer in self.steps:
-            original_callback, original_name = None, None
-            if self._logging_callback:
-                # Temporarily assign callback and name for correct logging context
-                original_callback, transformer._logging_callback = transformer._logging_callback, self._logging_callback
-                original_name, transformer.name = transformer.name, name
+            # Pass the pipeline's callback to the transformer
+            transformer._logging_callback = lambda step_name, payload: self._logging_callback(name, payload) if self._logging_callback else None
 
             self._log("transform_step", {"step": name, "input_shape": current_data.shape})
             current_data = transformer.transform(current_data)
-
-            if self._logging_callback:
-                transformer._logging_callback, transformer.name = original_callback, original_name # Restore
 
             self._log("transform_done", {"step": name, "output_shape": current_data.shape})
         return current_data
@@ -109,17 +96,11 @@ class Pipeline(BaseTransformer):
         self._validate_input(X)
         current_data = X
         for name, transformer in self.steps:
-            original_callback, original_name = None, None
-            if self._logging_callback:
-                # Temporarily assign callback and name for correct logging context
-                original_callback, transformer._logging_callback = transformer._logging_callback, self._logging_callback
-                original_name, transformer.name = transformer.name, name
+            # Pass the pipeline's callback to the transformer
+            transformer._logging_callback = lambda step_name, payload: self._logging_callback(name, payload) if self._logging_callback else None
 
             self._log("fit_transform_step", {"step": name, "input_shape": current_data.shape})
             current_data = transformer.fit_transform(current_data, y)
-
-            if self._logging_callback:
-                transformer._logging_callback, transformer.name = original_callback, original_name # Restore
 
             self._log("fit_transform_done", {"step": name, "output_shape": current_data.shape})
 

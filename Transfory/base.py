@@ -181,14 +181,26 @@ class BaseTransformer(abc.ABC):
         # return a shallow copy to avoid accidental in-place edits by subclasses
         return X.copy()
 
-    def _log(self, event: str, details: Dict[str, Any]) -> None:
+    def _log(self, event: str, details: Dict[str, Any], step_name: Optional[str] = None) -> None:
         """
         Internal logging hook. If a logging_callback is set, call it with standardized payload.
         """
         if callable(self._logging_callback):
-            payload = {"transformer": self.name, "event": event, "details": details}
+            # Automatically include public attributes of the transformer for richer logs.
+            # This avoids parsing the name string in the reporter.
+            config_params = {
+                k: v for k, v in self.__dict__.items()
+                if not k.startswith('_') and not callable(v)
+            }
+            payload = {
+                "transformer_name": self.name,
+                "event": event,
+                "details": details,
+                "config": config_params
+            }
             try:
-                self._logging_callback(self.name, payload)
+                # Use the provided step_name (from a pipeline) or the transformer's own name.
+                self._logging_callback(step_name or self.name, payload)
             except Exception:
                 # Logging should never break pipeline execution. Silently ignore logging errors.
                 # In development you may want to raise or print a warning.
