@@ -12,14 +12,10 @@
 
 All custom transformers in Transfory should inherit from `BaseTransformer`.
 
----
-
 ## Exceptions
 
 * `NotFittedError` – Raised if you call `transform` before `fit`.  
 * `FrozenTransformerError` – Raised if you try to `fit` a frozen transformer.  
-
----
 
 ## Constructor
 
@@ -30,16 +26,12 @@ BaseTransformer(
 )
 ```
 
----
-
 ## Parameters
 
 | Property        | Type   | Description                                      |
 | --------------- | ------ | ------------------------------------------------ |
 | `is_fitted`     | `bool` | Returns `True` if transformer has been fitted.   |
 | `fitted_params` | `dict` | Dictionary of parameters learned during fitting. |
-
----
 
 ## Methods
 
