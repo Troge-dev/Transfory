@@ -10,28 +10,24 @@
 * Saving/loading transformer state  
 * Optional logging for tracking transformations  
 
-All custom transformers in Transfory should inherit from `BaseTransformer`.
-
-## Exceptions
-
-* `NotFittedError` – Raised if you call `transform` before `fit`.  
-* `FrozenTransformerError` – Raised if you try to `fit` a frozen transformer.  
+All custom transformers in Transfory should inherit from `BaseTransformer`. 
 
 ## Constructor
 
 ```python
-BaseTransformer(
-    name: Optional[str] = None,
-    logging_callback: Optional[Callable[[str, Dict[str, Any]], None]] = None
-)
+BaseTransformer(name: Optional[str] = None, logging_callback: Optional[Callable[[str, Dict[str, Any]], None]] = None)
 ```
-
 ## Parameters
+
+* `name` (Optional[str]): Human-readable name for the transformer. Defaults to class name.
+* `logging_callback` (Optional[callable]): Function called after `fit` or `transform` to log events. Signature: `(step_name: str, details: dict)`
+* 
+## Properties
 
 | Property        | Type   | Description                                      |
 | --------------- | ------ | ------------------------------------------------ |
 | `is_fitted`     | `bool` | Returns `True` if transformer has been fitted.   |
-| `fitted_params` | `dict` | Dictionary of parameters learned during fitting. |
+| `fitted_params` | `Dict[str, Any]` | Dictionary of parameters learned during fitting. |
 
 ## Methods
 
@@ -76,10 +72,15 @@ load(filepath: str) -> BaseTransformer
 ```
 Loads a transformer from disk.
 
-## Other Notes
+* `_validate_input`
+```python
+_validate_input(X: pd.DataFrame, require_same_columns: bool = False) -> pd.DataFrame
+```
+Ensures X is a pandas DataFrame.
+Optionally checks that columns match those seen during `fit`.
 
-* `_validate_input` - Internal method to ensure input is a DataFrame and columns match.
-* `_log` - Internal method to send logs to `logging_callback`.
-* `__repr__` - Returns a readable summary of the transformer and its fitted parameters.
-* `__eq__` - Compares transformers by class, name, and fitted parameters.
-* `__len__` - Returns the number of stored fitted parameters.
+## Exceptions
+
+* `NotFittedError` – Raised if you call `transform` before `fit`.  
+* `FrozenTransformerError` – Raised if you try to `fit` a frozen transformer. 
+
