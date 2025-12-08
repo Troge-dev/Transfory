@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "transfory"
 version = "0.0.1"
 authors = [
-  { name="<Your Name>", email="<your_email@example.com>" },
+  { name="MCQYP", email="mandamian.rogelioiii@gmail.com" },
 ]
 description = "An Object-Oriented Data Transformation Toolkit"
 readme = "README.md"
@@ -23,5 +23,5 @@ classifiers = [
 dependencies = ["pandas", "numpy", "scikit-learn", "joblib"]
 
 [project.urls]
-"Homepage" = "https://github.com/<your_username>/transfory"
-"Bug Tracker" = "https://github.com/<your_username>/transfory/issues"
+"Homepage" = "https://github.com/Troge-dev/transfory"
+"Bug Tracker" = "https://github.com/Troge-dev/transfory/issues"
