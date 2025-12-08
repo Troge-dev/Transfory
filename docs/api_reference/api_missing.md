@@ -47,21 +47,21 @@ Inherited from `BaseTransformer`
 
 ## Methods
 
-* `fit`
+`fit`
 
 ```python
 fit(X: pd.DataFrame, y: Optional[pd.Series] = None) -> MissingValueHandler
 ```
 Computes the replacement values for each column based on the selected strategy. 
 - Only columns with missing values are processed.
-Learned values are stored in:
+- Learned values are stored in:
 
 ```python
 self._fitted_params["fill_values"]
 ```
 Raises `FrozenTransformerError` if the transformer is frozen.
 
-* `transform`
+`transform`
 
 ```python
 transform(X: pd.DataFrame) -> pd.DataFrame
@@ -70,7 +70,7 @@ Fills missing values using the values learned during `fit`.
 - Uses `DataFrams.fillna()` with a dictionary of values.
 Raised `NotFittedError` if called before `fit`.
 
-* `fit_transform`
+`fit_transform`
 
 ```python
 fit_transform(X: pd.DataFrame, y: Optional[pd.Series] = None) -> pd.DataFrame
@@ -78,35 +78,35 @@ fit_transform(X: pd.DataFrame, y: Optional[pd.Series] = None) -> pd.DataFrame
 
 Convenience method that performs `fit` followed by `transform`.
 
-* `freeze'
+`freeze'
   
 ```python
 freeze() -> None
 ```
 Prevents further calls to `fit`.
 
-* `unfreeze`
+`unfreeze`
 
 ```python
 unfreeze() -> None
 ```
 Allows fitting again after freezing.
 
-* `save`
+`save`
 
 ```
 save(filepath: str) -> None
 ```
 Saves the transformer state to disk using `joblib`.
 
-* `load`
+`load`
 
 ```python
 load(filepath: str) -> MissingValueHandler
 ```
 Loads a saved transformed from disk
 
-* `_validate_input` (Inherited)
+`_validate_input` (Inherited)
 
 ```python
 _validate_input(X: pd.DataFrame, require_same_columns: bool = False) -> pd.DataFrame
@@ -115,7 +115,7 @@ Ensures inout is a pandan DataFrame and optionally checks column consistency.
 
 ## Internal Methods
 
-* `_fit`
+`_fit`
 
 ```python
 _fit(X: pd.DataFrame, y=None)
@@ -125,7 +125,7 @@ Computes fill values per column based on the chosen strategy and stores them ini
 self._fill_values
 ```
 
-* `_transform`
+`_transform`
 
 ```python
 _transform(X: pd.DataFrame) -> pd.DataFrame
