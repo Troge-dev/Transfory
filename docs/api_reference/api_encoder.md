@@ -79,16 +79,16 @@ Encodes categorical values using mappings learned during `fit`.
 
 - Known categories → mapped to integers.
 - Unseen categories:
-`"ignore"` → replaced with -1
-`"error"` → raises ValueError
+  - `"ignore"` → replaced with -1
+  - `"error"` → raises ValueError
 
 **One-Hot Encoding**
 
 - Creates one binary column per known category.
 - Drops original categorical columns.
 - Unseen categories:
-`"ignore"` → ignored
-`"error"` → raises ValueError
+  - `"ignore"` → ignored
+  - `"error"` → raises ValueError
 - Raises `NotFittedError` if called before `fit`.
 
 `fit_transform`
@@ -146,7 +146,7 @@ Finds all unique categories per categorical column and stores their mappings int
 - For `"label"`: stores `{category: index}`.
 - For `"onehot"`: stores `list of categories`.
 
-- `_transform`
+`_transform`
 
 ```python
 _transform(X: pd.DataFrame) -> pd.DataFrame
