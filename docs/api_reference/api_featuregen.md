@@ -16,8 +16,6 @@ It inherits from `BaseTransformer` and supports:
 
 It selects numeric columns during `fit` and generates new features during `transform`.
 
----
-
 ## Constructor  
 
 ```python
