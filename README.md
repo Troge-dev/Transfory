@@ -2,8 +2,6 @@
 
 Transfory is an educational, object-oriented data transformation toolkit for Python. While libraries like scikit-learn and pandas are powerful, Transfory focuses on **explainability, traceability, and educational clarity**. It's designed to help data science students and beginners understand not just *what* a transformation does, but *how* and *why* it affects their data.
 
-Transfory is especially useful for data science students, beginners, and anyone learning data preprocessing, because it shows clear explanations of every step in the data transformation process.
-
 ## Purpose
 
 Data preprocessing is one of the most difficult steps for beginners in data science and machine learning. Transfory is designed to make this process easier, faster, and educational. It helps users by:
