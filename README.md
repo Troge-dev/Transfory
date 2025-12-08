@@ -13,8 +13,11 @@ Data preprocessing is one of the most difficult steps for beginners in data scie
 
 ## Key Features
 
-Transfory's core mission is to make the "black box" of data preprocessing transparent. It achieves this through:
+Transfory's core mission is to make the *"black box"* of data preprocessing transparent. It achieves this through:
 
+*   **Human-Readable Reports**: Every transformation produces a detailed summary that shows what changes were made, such as which missing values were filled, which columns were encoded, or which features were created.
+*   **Traceability**: The `InsightReporter` keeps a complete log of all steps in the pipeline. Users can track exactly what happens at each stage.
+*   **Data Snapshots**: Users can see the data before and after every transformation, making it easy to visualize the effect of each step.
 *   **Human-Readable Reports**: Every transformation produces a detailed summary that shows what changes were made, such as which missing values were filled, which columns were encoded, or which features were created.
 *   **Traceability**: The `InsightReporter` keeps a complete log of all steps in the pipeline. Users can track exactly what happens at each stage.
 *   **Data Snapshots**: Users can see the data before and after every transformation, making it easy to visualize the effect of each step.
