@@ -78,7 +78,7 @@ fit_transform(X: pd.DataFrame, y: Optional[pd.Series] = None) -> pd.DataFrame
 
 Convenience method that performs `fit` followed by `transform`.
 
-`freeze'
+`freeze`
   
 ```python
 freeze() -> None
