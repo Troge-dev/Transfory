@@ -43,7 +43,7 @@ Inherited from `BaseTransformer`
 | Property | Type | Description |
 | -------- | ---- | ----------- |
 | `is_fitted` | `bool` | Returns `True` after the transformer has been fitted |
-| `fitted_params` | `Dict[str, Any]` | Stores learned imputation values (`fill_valuee`) |
+| `fitted_params` | `Dict[str, Any]` | Stores learned imputation values (`fill_values`) |
 
 ## Methods
 
@@ -54,12 +54,12 @@ fit(X: pd.DataFrame, y: Optional[pd.Series] = None) -> MissingValueHandler
 ```
 Computes the replacement values for each column based on the selected strategy. 
 - Only columns with missing values are processed.
-- Learned values are stored in:
+Learned values are stored in:
 
 ```python
 self._fitted_params["fill_values"]
 ```
-- Raises `FrozenTransformerError` if the transformer is frozen.
+Raises `FrozenTransformerError` if the transformer is frozen.
 
 * `transform`
 
@@ -68,7 +68,7 @@ transform(X: pd.DataFrame) -> pd.DataFrame
 ```
 Fills missing values using the values learned during `fit`.
 - Uses `DataFrams.fillna()` with a dictionary of values.
-- Raised `NotFittedError` if called before `fit`.
+Raised `NotFittedError` if called before `fit`.
 
 * `fit_transform`
 
