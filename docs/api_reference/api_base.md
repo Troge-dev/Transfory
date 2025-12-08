@@ -21,7 +21,7 @@ BaseTransformer(name: Optional[str] = None, logging_callback: Optional[Callable[
 
 * `name` (Optional[str]): Human-readable name for the transformer. Defaults to class name.
 * `logging_callback` (Optional[callable]): Function called after `fit` or `transform` to log events. Signature: `(step_name: str, details: dict)`
-* 
+
 ## Properties
 
 | Property        | Type   | Description                                      |
