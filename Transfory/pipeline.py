@@ -53,7 +53,14 @@ class Pipeline(BaseTransformer):
         last_step_idx = len(self.steps) - 1
         for i, (name, transformer) in enumerate(self.steps):
             # Pass the pipeline's callback and the step name to the transformer
-            transformer._logging_callback = lambda step_name, payload: self._logging_callback(name, payload) if self._logging_callback else None
+            # The lambda now correctly uses the step_name from the child, which is crucial for ColumnTransformer
+            if self._logging_callback:
+                # This lambda captures the pipeline's step name (`name`) but passes the child's
+                # own `step_name` to the callback. This preserves nested names like "ct::imputer".
+                # We now prepend the pipeline step name to create a nested name.
+                transformer._logging_callback = lambda child_step_name, payload, pipeline_step_name=name: self._logging_callback(
+                    f"{pipeline_step_name}::{child_step_name}", payload
+                )
 
             self._log("fit_step_start", {"step": name, "shape": current_data.shape})
             if i < last_step_idx:
@@ -75,7 +82,10 @@ class Pipeline(BaseTransformer):
         current_data = X
         for name, transformer in self.steps:
             # Pass the pipeline's callback to the transformer
-            transformer._logging_callback = lambda step_name, payload: self._logging_callback(name, payload) if self._logging_callback else None
+            if self._logging_callback:
+                transformer._logging_callback = lambda child_step_name, payload, pipeline_step_name=name: self._logging_callback(
+                    f"{pipeline_step_name}::{child_step_name}", payload
+                )
 
             self._log("transform_step", {"step": name, "input_shape": current_data.shape})
             current_data = transformer.transform(current_data)
@@ -97,7 +107,10 @@ class Pipeline(BaseTransformer):
         current_data = X
         for name, transformer in self.steps:
             # Pass the pipeline's callback to the transformer
-            transformer._logging_callback = lambda step_name, payload: self._logging_callback(name, payload) if self._logging_callback else None
+            if self._logging_callback:
+                transformer._logging_callback = lambda child_step_name, payload, pipeline_step_name=name: self._logging_callback(
+                    f"{pipeline_step_name}::{child_step_name}", payload
+                )
 
             self._log("fit_transform_step", {"step": name, "input_shape": current_data.shape})
             current_data = transformer.fit_transform(current_data, y)

@@ -1,48 +1,33 @@
 # Transfory
 
-Transfory is an educational, object-oriented data transformation toolkit for Python. While libraries like scikit-learn and pandas are powerful, Transfory focuses on **explainability, traceability, and educational clarity**. It's designed to help data science students and beginners understand not just *what* a transformation does, but *how* and *why* it affects their data.
+[![PyPI version](https://badge.fury.io/py/transfory.svg)](https://badge.fury.io/py/transfory)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/transfory)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Purpose
+**An Object-Oriented, Explainable Data Transformation Toolkit for Python.**
 
-Data preprocessing is one of the most difficult steps for beginners in data science and machine learning. Transfory is designed to make this process easier, faster, and educational. It helps users by:
+`Transfory` is a data preprocessing library designed with clarity and modularity in mind. Inspired by `scikit-learn`'s API, it provides a suite of common data transformation tools that can be easily combined into powerful, reusable pipelines.
 
-*   Automating repetitive preprocessing tasks
-*   Using Object-Oriented Programming (OOP) for clean and reusable code
-*   Helping students understand what happens to their data through the Transformation Insight Engine
-*   Making preprocessing easier, faster, and more educational
+What makes `Transfory` unique is its built-in **`InsightReporter`**, an explainability engine that provides detailed, human-readable logs of every step in your transformation process. No more black boxes—understand exactly what happens to your data.
 
 ## Key Features
 
-Transfory's core mission is to make the *"black box"* of data preprocessing transparent. It achieves this through:
-
-*   **Human-Readable Reports**: Every transformation produces a detailed summary that shows what changes were made, such as which missing values were filled, which columns were encoded, or which features were created.
-*   **Traceability**: The `InsightReporter` keeps a complete log of all steps in the pipeline. Users can track exactly what happens at each stage.
-*   **Data Snapshots**: Users can see the data before and after every transformation, making it easy to visualize the effect of each step.
-*   **Human-Readable Reports**: Every transformation produces a detailed summary that shows what changes were made, such as which missing values were filled, which columns were encoded, or which features were created.
-*   **Traceability**: The `InsightReporter` keeps a complete log of all steps in the pipeline. Users can track exactly what happens at each stage.
-*   **Data Snapshots**: Users can see the data before and after every transformation, making it easy to visualize the effect of each step.
-*   **Modular OOP Design**: Built with clean, object-oriented principles, making it easy to understand, extend, and learn from.
-
-## Core Modules
-
-*   **Missing Value Imputation**: Handle `NaN` values with strategies like mean, median, or constant.
-*   **Encoding**: Converts categorical data into numbers using label encoding or one-hot encoding.
-*   **Scaling**: Normalize numerical features with Min-Max or Z-score scaling.
-*   **Feature Generation**: Automatically creates new features by generating polynomials or interactions between existing features.
-*   **Pipeline Automation**: Combines multiple transformation steps into a single reusable pipeline, making workflows consistent and easy to run on multiple datasets.
-*   **Insight Reporting**: The engine that powers Transfory's explainability.
+*   **Modular Transformers**: A collection of intuitive, single-purpose transformers for common preprocessing tasks.
+*   **Powerful Pipelines**: Chain transformers together with `Pipeline` and apply different logic to different columns with `ColumnTransformer`.
+*   **Explainability First**: The `InsightReporter` gives you a step-by-step narrative of your data's journey, making debugging and validation effortless.
+*   **Pandas-Native**: Built to work seamlessly with pandas DataFrames.
 
 ## Installation
 
-Install Transfory directly from PyPI:
+You can install `Transfory` directly from PyPI:
 
 ```bash
-pip install -i https://test.pypi.org/simple/ transfory
+pip install transfory
 ```
 
-## Usage Example
+## Quick Start
 
-Here is a quick example of how to use `Transfory` to process the Titanic dataset, which has a mix of data types and missing values.
+Let's perform a simple data cleaning operation on the Titanic dataset and see what `Transfory` tells us.
 
 ```python
 import pandas as pd
@@ -53,77 +38,176 @@ from transfory.encoder import Encoder
 from transfory.scaler import Scaler
 from transfory.insight import InsightReporter
 
-# 1. Load a real-world dataset
-df = sns.load_dataset('titanic')
-df = df[['pclass', 'sex', 'age', 'sibsp', 'parch', 'fare', 'embarked']]
-
-print("=== Original Data (first 5 rows) ===")
-print(df.head())
-
-# 2. Define the Transformation Pipeline with an InsightReporter
+# 1. Load data and initialize the reporter
+df = sns.load_dataset('titanic')[['age', 'fare', 'embarked', 'sex']]
 reporter = InsightReporter()
 
+# 2. Define a multi-step pipeline
 pipeline = Pipeline(
     steps=[
-        ("impute_numeric", MissingValueHandler(strategy="mean")),
-        ("impute_categoric", MissingValueHandler(strategy="mode")),
-        ("encode_cats", Encoder(method="onehot")),
-        ("scale_numeric", Scaler(method="zscore"))
+        ("imputer", MissingValueHandler(strategy="mean")),
+        ("encoder", Encoder(method="onehot")),
+        ("scaler", Scaler(method="zscore"))
     ],
     logging_callback=reporter.get_callback()
 )
 
-# 3. Run the Pipeline
-processed_df = pipeline.fit_transform(df)
+# 3. Fit and transform the data
+transformed_df = pipeline.fit_transform(df)
 
-print("\n\n=== Processed Data (first 5 rows) ===")
-print(processed_df.head())
+print("Transformed Data:")
+print(transformed_df.head())
 
-# 4. See the Transformation Report
-print("\n\n=== Transformation Report ===")
+# 4. Review the Insight Report for a step-by-step explanation
+print("\n--- Insight Report ---")
 print(reporter.summary())
 ```
 
-The final report clearly explains every action taken, providing a complete audit trail of the preprocessing workflow.
+The `InsightReporter` will output a clear summary of what happened, such as the value used for imputation, the new columns created by the encoder, and the columns that were scaled.
 
-## How Transfory Compares
+## Core Modules Explained
 
-How does `Transfory` fit into an ecosystem that already includes powerful tools like `scikit-learn` and `pandas`?
+`Transfory` is built on a set of core components that can be mixed and matched to create any preprocessing workflow.
 
-### Transfory vs. scikit-learn
+### Orchestrators
 
-*   **scikit-learn's Strength**: `scikit-learn` is the industry standard for machine learning. Its `Pipeline` is highly optimized for performance and integrates with a massive ecosystem of modeling tools.
-*   **Transfory's Niche**: **Explainability and Auditing**. While a `scikit-learn` pipeline is efficient, it can be a "black box." It is not designed to easily produce a step-by-step, human-readable report of what happened inside. `Transfory`'s `InsightReporter` is built for exactly this purpose. It tells you which columns were imputed with which values, what categories were encoded, and what scaling parameters were learned.
-*   **Verdict**: `Transfory` is not a replacement for `scikit-learn` but a powerful companion for the **development, debugging, and learning phases** of a project. Use it when you need to build confidence in your preprocessing workflow and maintain a clear audit trail.
+These modules are used to control the flow and application of transformers.
 
-### Transfory vs. pandas
+#### `Pipeline`
 
-*   **pandas' Strength**: `pandas` is the ultimate tool for manual data manipulation. You can perform any transformation you can imagine.
-*   **Transfory's Niche**: **Structure and Reproducibility**. Performing preprocessing manually with pandas often leads to code that is hard to read, difficult to reproduce, and prone to errors (e.g., accidentally fitting an imputer on test data). `Transfory` enforces a structured, repeatable `fit`/`transform` workflow inside a `Pipeline`, ensuring that the exact same steps are applied to your training and testing data every time.
-*   **Verdict**: Use `Transfory` to turn your manual `pandas` operations into a robust, reusable, and self-documenting `Pipeline`.
+Sequentially applies a list of transformers. The output of one step becomes the input to the next, making it easy to define an ordered workflow.
 
-## Limitations and When to Use Transfory
+```python
+from transfory.pipeline import Pipeline
 
-`Transfory` is designed with specific goals in mind, and its limitations are a direct result of prioritizing clarity and explainability over raw performance.
+pipeline = Pipeline([
+    ("imputer", MissingValueHandler()),
+    ("scaler", Scaler()),
+])
+```
 
-*   **Performance**: `Transfory` is written in pure Python and operates on pandas DataFrames. For very large datasets (millions of rows), it will be slower than highly optimized libraries like `scikit-learn`.
-*   **In-Memory Only**: The library requires datasets to fit into your machine's RAM, as it does not support distributed computing frameworks like Dask or Spark.
-*   **Sequential Processing**: The `Pipeline` processes steps one after another. It does not support applying different transformations to different columns in parallel (unlike `scikit-learn`'s `ColumnTransformer`). This makes the reporting simpler and more linear.
+#### `ColumnTransformer`
 
-**The ideal use case for `Transfory` is during the development, debugging, and educational phases of a project.** It excels when you need to build confidence in your preprocessing steps, generate clear audit trails, and understand the impact of each transformation on your data.
+Applies different transformers to different columns of a DataFrame in parallel. This is highly efficient and essential for workflows where numeric and categorical data need separate handling.
 
-## Support and Help
+```python
+from transfory.column_transformer import ColumnTransformer
 
-Users can get support through:
+preprocessor = ColumnTransformer(
+    transformers=[
+        ("numeric_scaler", Scaler(), ['age', 'fare']),
+        ("categorical_encoder", Encoder(), ['embarked', 'sex'])
+    ],
+    remainder='passthrough' # Keep other columns
+)
+```
 
-*   The project README documentation
-*   The API reference inside the `/docs` folder
-*   The GitHub Issues page for bug reports and feature requests
+#### `InsightReporter`
 
-## Project Contributors
+The explainability engine of `Transfory`. It captures events from all transformers in a pipeline and provides a detailed, human-readable summary of the entire process. Simply create an instance and pass its callback to your pipeline.
 
-Transfory is maintained and developed by a team of five student contributors as part of an Object-Oriented Programming final project. Each member contributes through coding, documentation, testing, and project coordination.
+```python
+from transfory.insight import InsightReporter
+
+reporter = InsightReporter()
+pipeline = Pipeline([...], logging_callback=reporter.get_callback())
+pipeline.fit_transform(df)
+print(reporter.summary())
+```
+
+---
+
+### Data Transformers
+
+These are the building blocks that perform the actual data transformations.
+
+#### `MissingValueHandler`
+
+Handles missing (`NaN`) values in a DataFrame.
+
+*   **Strategies**: `mean`, `median`, `mode`, `constant` (with `fill_value`).
+
+```python
+from transfory.missing import MissingValueHandler
+
+# Impute with the mean for numeric columns and mode for categorical
+imputer = MissingValueHandler(strategy="mean")
+```
+
+#### `Encoder`
+
+Converts categorical columns into a numerical format.
+
+*   **Methods**: `onehot` (creates binary columns), `label` (assigns a unique integer to each category).
+
+```python
+from transfory.encoder import Encoder
+
+# Create new columns for each category
+encoder = Encoder(method="onehot")
+```
+
+#### `Scaler`
+
+Scales numeric features to a common range.
+
+*   **Methods**: `zscore` (standard scaling), `minmax` (scales to a [0, 1] range).
+
+```python
+from transfory.scaler import Scaler
+
+# Scale features to have zero mean and unit variance
+scaler = Scaler(method="zscore")
+```
+
+#### `OutlierHandler`
+
+Caps extreme values (outliers) to mitigate their effect on downstream models.
+
+*   **Methods**: `iqr` (caps at 1.5 * Interquartile Range), `zscore` (caps at a z-score threshold), `quantile`.
+
+```python
+from transfory.outlier import OutlierHandler
+
+# Cap values outside the 1.5 * IQR range
+outlier_handler = OutlierHandler(method="iqr")
+```
+
+#### `DatetimeFeatureExtractor`
+
+Creates new features from datetime columns, such as year, month, day, or day of the week.
+
+```python
+from transfory.datetime import DatetimeFeatureExtractor
+
+# Extract year and month from a 'transaction_date' column
+date_extractor = DatetimeFeatureExtractor(features=['year', 'month'])
+```
+
+#### `FeatureGenerator`
+
+Automatically creates polynomial and interaction features from numeric columns to help models capture non-linear relationships.
+
+```python
+from transfory.featuregen import FeatureGenerator
+
+# Create quadratic features (e.g., a^2, b^2) and interaction features (a*b)
+feature_gen = FeatureGenerator(degree=2, include_interactions=True)
+```
+
+## Demos
+
+For more in-depth examples, check out the Jupyter Notebooks in the `/demo` directory. They provide interactive, step-by-step walkthroughs of the library's capabilities on real datasets.
+
+1.  **`demo1_basic_pipeline.ipynb`**: Introduction to `Pipeline`.
+2.  **`demo2_column_transformer.ipynb`**: Advanced workflows with `ColumnTransformer`.
+3.  **`demo3_feature_engineering.ipynb`**: Using `DatetimeFeatureExtractor` and `FeatureGenerator`.
+4.  **`demo4_outlier_handling.ipynb`**: Using the `OutlierHandler`.
+
+## Contributing
+
+Contributions are welcome! If you have a feature request, bug report, or want to improve the documentation, please open an issue or submit a pull request on the GitHub repository.
 
 ## License
 
-This project is licensed under the MIT License. See the LICENSE.md file for details.
+This project is licensed under the MIT License. See the `LICENSE` file for details.

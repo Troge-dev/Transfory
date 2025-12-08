@@ -1,8 +1,3 @@
-import sys
-import os
-# Add the project root to the path to allow importing 'transfory'
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 import pandas as pd
 import seaborn as sns
 

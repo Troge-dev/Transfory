@@ -181,30 +181,37 @@ class BaseTransformer(abc.ABC):
         # return a shallow copy to avoid accidental in-place edits by subclasses
         return X.copy()
 
-    def _log(self, event: str, details: Dict[str, Any], step_name: Optional[str] = None) -> None:
+    def _log(self, event: str, details: Dict[str, Any], step_name: Optional[str] = None, config: Optional[Dict[str, Any]] = None, transformer_name: Optional[str] = None) -> None:
         """
         Internal logging hook. If a logging_callback is set, call it with standardized payload.
         """
-        if callable(self._logging_callback):
-            # Automatically include public attributes of the transformer for richer logs.
-            # This avoids parsing the name string in the reporter.
-            config_params = {
-                k: v for k, v in self.__dict__.items()
-                if not k.startswith('_') and not callable(v)
-            }
+        if not callable(self._logging_callback):
+            return
+
+        # If a config is passed directly (e.g., from a ColumnTransformer forwarding a sub-log),
+        # use it. Otherwise, generate a config from the transformer's own public attributes.
+        try:
+            if config is not None:
+                config_params = config
+            else:
+                config_params = {
+                    k: v for k, v in self.__dict__.items()
+                    if not k.startswith('_') and not callable(v)
+                }
+
             payload = {
-                "transformer_name": self.name,
+                # Use the forwarded name if provided, otherwise use self.name
+                "transformer_name": transformer_name if transformer_name is not None else self.name,
                 "event": event,
                 "details": details,
-                "config": config_params
+                "config": config_params,
             }
-            try:
-                # Use the provided step_name (from a pipeline) or the transformer's own name.
-                self._logging_callback(step_name or self.name, payload)
-            except Exception:
-                # Logging should never break pipeline execution. Silently ignore logging errors.
-                # In development you may want to raise or print a warning.
-                pass
+            # Use the provided step_name (from a pipeline) or the transformer's own name.
+            self._logging_callback(step_name or self.name, payload)
+        except Exception:
+            # Logging should never break pipeline execution. Silently ignore logging errors.
+            # In development you may want to raise or print a warning.
+            pass
 
     def __getstate__(self) -> Dict[str, Any]:
         """

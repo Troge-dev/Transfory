@@ -59,14 +59,63 @@ class InsightReporter:
         event = log.get("event", "unknown")
         details = log.get("details", {})
         # Get the original transformer name for display, and a lowercase version for logic.
-        display_transformer_name = log.get("transformer_name", step_name)
+        raw_display_name = log.get("transformer_name", step_name)
+        display_transformer_name = str(raw_display_name).split('(')[0]
         logic_transformer_name = display_transformer_name.lower()
         config = log.get("config", {})
 
-        # Default message
-        explanation = f"Step '{step_name}' ({display_transformer_name}) completed a '{event}' event."
-        if step_name.lower() == logic_transformer_name:
-             explanation = f"Step '{step_name}' completed a '{event}' event."
+        # Handle nested step names (e.g., "ColumnTransformer_step::SubTransformer_step")
+        nested_step_match = re.match(r"(.+)::(.+)", step_name)
+        if nested_step_match:
+            parent_step_name = nested_step_match.group(1)
+            sub_step_name = nested_step_match.group(2)
+            # For nested steps, the 'transformer_name' in the log IS the sub-transformer's name.
+            # Use it to drive the logic for formatting the sub-step's explanation.
+            sub_raw_display_name = log.get("transformer_name", sub_step_name)
+            sub_display_transformer_name = str(sub_raw_display_name).split('(')[0]
+            sub_explanation = self._format_log_entry_for_transformer(
+                sub_display_transformer_name, event, details, sub_display_transformer_name, sub_display_transformer_name.lower(), config
+            )
+            return f"[{parent_step_name}] {sub_explanation}"
+        
+
+
+        
+        # For top-level steps, use the dedicated helper
+        return self._format_log_entry_for_transformer(
+            step_name, event, details, display_transformer_name, logic_transformer_name, config
+        )
+
+    def _format_log_entry_for_transformer(self, step_name: str, event: str, details: Dict[str, Any],
+                                          display_transformer_name: str, logic_transformer_name: str,
+                                          config: Dict[str, Any]) -> str:
+        # --- Custom Explanations for Container Transformers ---
+        # These are checked first because they have their own event types.
+
+        # ColumnTransformer
+        if "columntransformer" in logic_transformer_name:
+            # These are events from the ColumnTransformer itself, so we create simpler messages.
+            if event == "fit_sub_transformer_start":
+                sub_transformer_name = str(details.get("transformer_name", "Unknown")).split('(')[0]
+                columns = details.get("columns", [])
+                return f"started fitting sub-transformer '{sub_transformer_name}' on {len(columns)} column(s): {columns}."
+            if event == "fit_sub_transformer_end":
+                sub_transformer_name = str(details.get("transformer_name", "Unknown")).split('(')[0]
+                return f"finished fitting sub-transformer '{sub_transformer_name}'."
+            if event == "transform_passthrough":
+                columns = details.get("columns", [])
+                return f"passed through {len(columns)} column(s) unchanged: {columns}."
+            if event == "transform_remainder":
+                columns = details.get("columns", [])
+                return f"passed through {len(columns)} remainder column(s) unchanged: {columns}."
+            if event == "fit_skip_transformer":
+                sub_transformer_name = str(details.get("transformer_name", "Unknown")).split('(')[0]
+                reason = details.get("reason", "No columns selected for transformation.")
+                return f"skipped sub-transformer '{sub_transformer_name}': {reason}"
+            if event == "transform_sub_transformer_start":
+                sub_transformer_name = str(details.get("transformer_name", "Unknown")).split('(')[0]
+                columns = details.get("columns", [])
+                return f"started transforming with sub-transformer '{sub_transformer_name}' on {len(columns)} column(s): {columns}."
 
         # --- Custom Explanations for Different Transformers ---
 
@@ -142,6 +191,25 @@ class InsightReporter:
                 if bounds:
                     return f"Step '{step_name}' (OutlierHandler) applied capping to {len(bounds)} column(s)."
 
+        # DatetimeFeatureExtractor
+        if "datetimefeatureextractor" in logic_transformer_name:
+            if event == "fit":
+                dt_cols = details.get("fitted_params", {}).get("datetime_columns", [])
+                features_to_extract = config.get("features", [])
+                if dt_cols:
+                    return f"Step '{step_name}' (DatetimeFeatureExtractor) identified {len(dt_cols)} datetime column(s) to process: {dt_cols}. It will extract {len(features_to_extract)} features: {features_to_extract}."
+                return f"Step '{step_name}' (DatetimeFeatureExtractor) fitted, but no datetime columns were found to process."
+            if event == "transform":
+                # This requires the transformer to log more details, but we can make a generic message.
+                # A more advanced version would log the new columns created.
+                dt_cols = details.get("fitted_params", {}).get("datetime_columns", [])
+                return f"Step '{step_name}' (DatetimeFeatureExtractor) extracted features from {len(dt_cols)} column(s) and dropped the originals."
+
+
+        # Default message if no specific handler matched
+        explanation = f"Step '{step_name}' ({display_transformer_name}) completed a '{event}' event."
+        if step_name.lower() == logic_transformer_name:
+             explanation = f"Step '{step_name}' completed a '{event}' event."
         return explanation
 
     def _get_fitted_columns(self, details: Dict[str, Any], param_key: str) -> List[str]:

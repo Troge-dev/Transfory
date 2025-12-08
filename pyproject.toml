@@ -20,7 +20,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Scientific/Engineering :: Information Analysis",
 ]
-dependencies = ["pandas", "numpy", "scikit-learn", "joblib", "seaborn"]
+dependencies = ["pandas", "numpy", "scikit-learn", "joblib"]
 
 [project.urls]
 "Homepage" = "https://github.com/Troge-dev/transfory"
