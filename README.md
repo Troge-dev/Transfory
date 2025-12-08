@@ -29,7 +29,7 @@ Transfory's core mission is to make the "black box" of data preprocessing transp
 - **Pipeline Automation**: Chain all your transformation steps into a single, reusable object.
 - **Insight Reporting**: The engine that powers Transfory's explainability.
 
-  ## Support and Help
+## Support and Help
 
 Users can get support through:
 
