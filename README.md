@@ -37,6 +37,8 @@ Install Transfory directly from PyPI:
 pip install transfory
 ```
 
+## Usage Example
+
 ## Support and Help
 
 Users can get support through:
