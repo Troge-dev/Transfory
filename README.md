@@ -31,7 +31,7 @@ Transfory's core mission is to make the *"black box"* of data preprocessing tran
 
 ## Installation
 
-Install Transfory direcrtly from PyPI:
+Install Transfory directly from PyPI:
 
 ```bash
 pip install transfory
