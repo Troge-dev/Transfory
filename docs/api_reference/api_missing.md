@@ -21,31 +21,6 @@ MissingValueHandler(
 )
 ```
 ## Parameters
-Perfect—here is your GitHub-ready Markdown version of the MissingValueHandler API Reference. You can copy-paste this directly into your README.md or docs.md file:
-
-# MissingValueHandler API Reference
-
-## Overview  
-`MissingValueHandler` is a transformer used to handle missing values in a pandas DataFrame using different imputation strategies. It inherits from `BaseTransformer` and fully supports:
-
-- `fit`, `transform`, and `fit_transform`
-- Input validation for pandas DataFrames  
-- Recording fitted parameters  
-- Saving and loading state  
-- Optional logging via `BaseTransformer`
-
-It computes replacement values during `fit` and applies them during `transform`.
-
-## Constructor  
-
-```python
-MissingValueHandler(
-    strategy: str = "mean",
-    fill_value: Any = None,
-    name: Optional[str] = None
-)
-```
-## Parameters
 
 | Parameter  | Type | Description |
 | ---------  | ---- | ------------ |
