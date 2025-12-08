@@ -73,7 +73,7 @@ transform(X: pd.DataFrame) -> pd.DataFrame
 ```
 Encodes categorical values using mappings learned during `fit`.
 
-##### Behavior by Method:
+#### Behavior by Method:
 
 **Label Encoding**
 
