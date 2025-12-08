@@ -31,14 +31,14 @@ BaseTransformer(name: Optional[str] = None, logging_callback: Optional[Callable[
 
 ## Methods
 
-* `fit`
+`fit`
 ```python
 fit(X: pd.DataFrame, y: Optional[pd.Series] = None) -> BaseTransformer
 ```
 *Fits the transformer to X (and optionally y).*
 Raises `FrozenTransformerError` if transformer is frozen.
 
-* `transform`
+`transform`
 ```python
 transform(X: pd.DataFrame) -> pd.DataFrame
 ```
@@ -46,13 +46,13 @@ transform(X: pd.DataFrame) -> pd.DataFrame
 *Transforms the data using the learned parameters.*
 Raises `NotFittedError` if transformer is not fitted.
 
-* `fit_transform`
+`fit_transform`
 ```python
 fit_transform(X: pd.DataFrame, y: Optional[pd.Series] = None) -> pd.DataFrame
 ```
 *Convenience method that calls *`fit`* then *`transform`*.*
 
-* `freeze`/`unfreeze`
+`freeze`/`unfreeze`
 ```python
 Convenience method that calls fit then transform.
 ```
@@ -62,7 +62,7 @@ unfreeze() -> None
 ```
 Allows `fit` again after freezing.
 
-* `save`/`load`
+`save`/`load`
 ```python
 save(filepath: str) -> None
 ```
@@ -72,7 +72,7 @@ load(filepath: str) -> BaseTransformer
 ```
 Loads a transformer from disk.
 
-* `_validate_input`
+`_validate_input`
 ```python
 _validate_input(X: pd.DataFrame, require_same_columns: bool = False) -> pd.DataFrame
 ```
