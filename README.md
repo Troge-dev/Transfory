@@ -11,7 +11,7 @@ Data preprocessing is one of the most difficult steps for beginners in data scie
 *  Helps students understand what happens to their data through the Transformation Insight Engine
 *  Makes preprocessing easier, faster, and more educational
 
-## Key Features: Beyond the Transformation
+## Key Features
 
 Transfory's core mission is to make the *"black box"* of data preprocessing transparent. It achieves this through:
 
@@ -28,6 +28,13 @@ Transfory's core mission is to make the *"black box"* of data preprocessing tran
 - **Feature Generation**: Automatically creates new features by generating polynomials or interactions between existing features.
 - **Pipeline Automation**: Combines multiple transformation steps into a single reusable pipeline, making workflows consistent and easy to run on multiple datasets.
 - **Insight Reporting**: The engine that powers Transfory's explainability.
+
+## Installation
+
+Install Transfory direcrtly from PyPI:
+
+```bash
+pip install transfory
 
 ## Support and Help
 
