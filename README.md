@@ -34,9 +34,9 @@ Transfory's core mission is to make the *"black box"* of data preprocessing tran
 Users can get support through:
 
 *  The project README documentation
-*  The API reference inside the '/docs' folder
+*  The API reference inside the `/docs` folder
 *  The GitHub Issues page for bug reports and feature requests
 
- ## Project Maintainer and Contributors
+ ## Project Contributors
 
 Transfory is maintained and developed by a team of five student contributors as part of an Object-Oriented Programming final project. Each member contributes through coding, documentation, testing, and project coordination.
