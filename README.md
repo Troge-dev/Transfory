@@ -35,6 +35,7 @@ Install Transfory direcrtly from PyPI:
 
 ```bash
 pip install transfory
+```
 
 ## Support and Help
 
