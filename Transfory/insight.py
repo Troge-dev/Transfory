@@ -1,5 +1,6 @@
 from __future__ import annotations
 import pandas as pd
+import re
 import json
 from datetime import datetime
 from typing import Any, Dict, List, Optional
@@ -66,12 +67,10 @@ class InsightReporter:
 
         # MissingValueHandler
         if "missingvaluehandler" in transformer_name and event == "fit":
-            params = details.get("fitted_params", {})
-            fill_values = params.get("fill_values", {})
-            if fill_values:
-                cols = list(fill_values.keys())
+            cols = self._get_fitted_columns(details, "fill_values")
+            if cols:
                 strategy = self._get_strategy_from_name(step_name)
-                return f"Imputer '{step_name}' fitted. Will use '{strategy}' on {len(cols)} column(s): {cols}."
+                return f"Imputer '{step_name}' fitted. Will use '{strategy}' on {len(cols)} column(s): {list(cols)}."
             return f"Imputer '{step_name}' fitted, but no missing values were found to handle."
 
         # Encoder
@@ -79,18 +78,17 @@ class InsightReporter:
             params = details.get("fitted_params", {})
             mappings = params.get("mappings", {})
             if mappings:
-                cols = list(mappings.keys())
+                cols = list(mappings.keys()) # Mappings are dicts of {col: mapping}
                 method = self._get_method_from_name(step_name)
                 return f"Encoder '{step_name}' fitted. Will apply '{method}' encoding to {len(cols)} column(s): {cols}."
             return f"Encoder '{step_name}' fitted, but no categorical columns were found to encode."
 
         # Scaler
         if "scaler" in transformer_name and event == "fit":
-            params = details.get("fitted_params", {})
-            cols = params.get("columns", [])
-            if len(cols) > 0:
+            cols = self._get_fitted_columns(details, "columns")
+            if cols:
                 method = self._get_method_from_name(step_name)
-                return f"Scaler '{step_name}' fitted. Will apply '{method}' scaling to {len(cols)} column(s): {list(cols)}."
+                return f"Scaler '{step_name}' fitted. Will apply '{method}' scaling to {len(cols)} column(s): {cols}."
             return f"Scaler '{step_name}' fitted, but no numeric columns were found to scale."
 
         # FeatureGenerator
@@ -102,17 +100,25 @@ class InsightReporter:
 
         return explanation
 
+    def _get_fitted_columns(self, details: Dict[str, Any], param_key: str) -> List[str]:
+        """Helper to extract fitted column names from a log's details."""
+        params = details.get("fitted_params", {})
+        values = params.get(param_key, {})
+        if isinstance(values, dict):
+            return list(values.keys())
+        if isinstance(values, (list, pd.Index)):
+            return list(values)
+        return []
+
     def _get_strategy_from_name(self, name: str) -> str:
         """Helper to extract strategy from a transformer name like 'MissingValueHandler(strategy='mean')'."""
-        if "strategy='" in name:
-            return name.split("strategy='")[1].split("'")[0]
-        return "unknown"
+        match = re.search(r"strategy='([^']*)'", name)
+        return match.group(1) if match else "unknown"
 
     def _get_method_from_name(self, name: str) -> str:
         """Helper to extract method from a transformer name like 'Encoder(method='onehot')'."""
-        if "method='" in name:
-            return name.split("method='")[1].split("'")[0]
-        return "unknown"
+        match = re.search(r"method='([^']*)'", name)
+        return match.group(1) if match else "unknown"
 
     def summary(self, as_dataframe: bool = False) -> Any:
         """

@@ -166,13 +166,16 @@ class BaseTransformer(abc.ABC):
 
         # Optionally check columns match training
         if require_same_columns and self._last_input_columns is not None:
-            # simple check: same set of columns
-            current_cols = list(X.columns)
-            if set(current_cols) != set(self._last_input_columns):
-                # It's common for transformers to accept extra columns; warn or error depending on strictness.
+            # Check that all columns from `fit` are present in `transform`'s X.
+            # This is more flexible than an exact match, allowing extra columns.
+            fit_cols_set = set(self._last_input_columns)
+            transform_cols_set = set(X.columns)
+
+            if not fit_cols_set.issubset(transform_cols_set):
+                missing_cols = fit_cols_set - transform_cols_set
                 raise ValueError(
-                    f"Column mismatch for {self.name}. Expected columns: {self._last_input_columns}. "
-                    f"Got columns: {current_cols}."
+                    f"Missing columns for {self.name}. Transformer was fitted on {self._last_input_columns}, "
+                    f"but the following columns are missing: {list(missing_cols)}."
                 )
 
         # return a shallow copy to avoid accidental in-place edits by subclasses
@@ -190,6 +193,20 @@ class BaseTransformer(abc.ABC):
                 # Logging should never break pipeline execution. Silently ignore logging errors.
                 # In development you may want to raise or print a warning.
                 pass
+
+    def __getstate__(self) -> Dict[str, Any]:
+        """
+        Customize serialization. Exclude the logging callback, which is not serializable.
+        """
+        state = self.__dict__.copy()
+        state["_logging_callback"] = None  # Exclude non-serializable callback
+        return state
+
+    def __setstate__(self, state: Dict[str, Any]) -> None:
+        """
+        Customize deserialization.
+        """
+        self.__dict__.update(state)
 
     # ------------------------------
     # Dunder & convenience
