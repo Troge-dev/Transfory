@@ -1,2 +1,5 @@
-print("Rogelio Q. Mandamian III")
-print("TEST 1")
+import pytest
+
+def test_initialization():
+    """A simple placeholder test to ensure pytest is running correctly."""
+    assert True

@@ -71,37 +71,76 @@ class InsightReporter:
         # --- Custom Explanations for Different Transformers ---
 
         # MissingValueHandler
-        if "missingvaluehandler" in logic_transformer_name and event == "fit":
-            cols = self._get_fitted_columns(details, "fill_values")
-            if cols:
-                strategy = config.get("strategy", "unknown")
-                return f"Step '{step_name}' (MissingValueHandler) fitted. Will use '{strategy}' on {len(cols)} column(s): {list(cols)}."
-            return f"Imputer '{step_name}' fitted, but no missing values were found to handle."
+        if "missingvaluehandler" in logic_transformer_name:
+            if event == "fit":
+                fill_values = details.get("fitted_params", {}).get("fill_values", {})
+                if fill_values:
+                    strategy = config.get("strategy", "unknown")
+                    # Create a more descriptive summary of values, e.g., "age: 29.7, embarked: 'S'"
+                    value_summary = ", ".join([f"{k}: {v:.2f}" if isinstance(v, float) else f"{k}: '{v}'" for k, v in fill_values.items()])
+                    return f"Step '{step_name}' (MissingValueHandler) learned imputation values using '{strategy}' for {len(fill_values)} column(s). Values: {value_summary}."
+                return f"Step '{step_name}' (MissingValueHandler) fitted, but no missing values were found to handle."
+            if event == "transform":
+                # This assumes the transform log will include which columns were affected.
+                # The current MissingValueHandler does not log this, but we can make the text generic.
+                return f"Step '{step_name}' (MissingValueHandler) applied imputation to the data."
 
         # Encoder
-        if "encoder" in logic_transformer_name and event == "fit":
-            params = details.get("fitted_params", {})
-            mappings = params.get("mappings", {})
-            if mappings:
-                cols = list(mappings.keys()) # Mappings are dicts of {col: mapping}
-                method = config.get("method", "unknown")
-                return f"Step '{step_name}' (Encoder) fitted. Will apply '{method}' encoding to {len(cols)} column(s): {cols}."
-            return f"Encoder '{step_name}' fitted, but no categorical columns were found to encode."
+        if "encoder" in logic_transformer_name:
+            if event == "fit":
+                mappings = details.get("fitted_params", {}).get("mappings", {})
+                if mappings:
+                    cols = list(mappings.keys())
+                    method = config.get("method", "unknown")
+                    if method == 'onehot':
+                        total_new_cols = sum(len(v) for v in mappings.values())
+                        return f"Step '{step_name}' (Encoder) fitted for 'onehot' encoding on {len(cols)} column(s). This will create {total_new_cols} new columns."
+                    return f"Step '{step_name}' (Encoder) fitted for '{method}' encoding on {len(cols)} column(s): {cols}."
+                return f"Step '{step_name}' (Encoder) fitted, but no categorical columns were found to encode."
+            if event == "transform" and config.get("method") == 'onehot':
+                new_cols = details.get("new_columns_added", [])
+                if new_cols:
+                    return f"Step '{step_name}' (Encoder) applied 'onehot' encoding, creating {len(new_cols)} new columns and removing originals."
 
         # Scaler
-        if "scaler" in logic_transformer_name and event == "fit":
-            cols = self._get_fitted_columns(details, "columns")
-            if cols:
-                method = config.get("method", "unknown")
-                return f"Step '{step_name}' (Scaler) fitted. Will apply '{method}' scaling to {len(cols)} column(s): {cols}."
-            return f"Scaler '{step_name}' fitted, but no numeric columns were found to scale."
+        if "scaler" in logic_transformer_name:
+            if event == "fit":
+                cols = self._get_fitted_columns(details, "columns")
+                if cols:
+                    method = config.get("method", "unknown")
+                    return f"Step '{step_name}' (Scaler) fitted. It will apply '{method}' scaling to {len(cols)} numeric column(s)."
+                return f"Step '{step_name}' (Scaler) fitted, but no numeric columns were found to scale."
+            if event == "transform":
+                cols = details.get("fitted_params", {}).get("columns", [])
+                if len(cols) > 0:
+                    return f"Step '{step_name}' (Scaler) applied scaling to {len(cols)} column(s): {list(cols)}."
 
         # FeatureGenerator
-        if "featuregenerator" in logic_transformer_name and event == "transform":
-            new_features = details.get("new_features_created", [])
-            if new_features:
-                return f"Step '{step_name}' (FeatureGenerator) created {len(new_features)} new feature(s), including '{new_features[0]}'..."
-            return f"Feature Generator '{step_name}' created 0 new features."
+        if "featuregenerator" in logic_transformer_name:
+            if event == "fit":
+                cols = self._get_fitted_columns(details, "columns_to_process")
+                strategy = config.get("strategy", "unknown")
+                return f"Step '{step_name}' (FeatureGenerator) fitted. It will generate features from {len(cols)} numeric column(s)."
+            if event == "transform":
+                new_features = details.get("new_features_created", [])
+                if new_features:
+                    return f"Step '{step_name}' (FeatureGenerator) created {len(new_features)} new features (e.g., '{new_features[0]}', '{new_features[1]}'...). The DataFrame now has {details.get('output_shape', [0,0])[1]} columns."
+                return f"Step '{step_name}' (FeatureGenerator) ran but created no new features."
+
+        # OutlierHandler
+        if "outlierhandler" in logic_transformer_name:
+            if event == "fit":
+                bounds = details.get("fitted_params", {}).get("bounds", {})
+                if bounds:
+                    method = config.get("method", "unknown")
+                    # Show an example bound to be more descriptive
+                    example_col, (lower, upper) = next(iter(bounds.items()))
+                    return f"Step '{step_name}' (OutlierHandler) learned capping bounds using '{method}' for {len(bounds)} column(s). (e.g., '{example_col}' will be capped between {lower:.2f} and {upper:.2f})."
+                return f"Step '{step_name}' (OutlierHandler) fitted, but no numeric columns were found to process."
+            if event == "transform":
+                bounds = details.get("fitted_params", {}).get("bounds", {})
+                if bounds:
+                    return f"Step '{step_name}' (OutlierHandler) applied capping to {len(bounds)} column(s)."
 
         return explanation
 
