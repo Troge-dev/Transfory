@@ -32,11 +32,11 @@ Let's perform a simple data cleaning operation on the Titanic dataset and see wh
 ```python
 import pandas as pd
 import seaborn as sns
-from transfory.pipeline import Pipeline
-from transfory.missing import MissingValueHandler
-from transfory.encoder import Encoder
-from transfory.scaler import Scaler
-from transfory.insight import InsightReporter
+from transfory import pipeline
+from transfory import missing
+from transfory import encoder
+from transfory import scaler
+from transfory import insight
 
 # 1. Load data and initialize the reporter
 df = sns.load_dataset('titanic')[['age', 'fare', 'embarked', 'sex']]
