@@ -1,8 +1,9 @@
 # Transfory
 
-[![PyPI version](https://badge.fury.io/py/transfory.svg)](https://badge.fury.io/py/transfory)
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/transfory)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![PyPI version](https://badge.fury.io/py/transfory.svg)
+![Python Versions](https://img.shields.io/pypi/pyversions/transfory)
+![Downloads](https://img.shields.io/pypi/dm/transfory)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
 **An Object-Oriented, Explainable Data Transformation Toolkit for Python.**
 
