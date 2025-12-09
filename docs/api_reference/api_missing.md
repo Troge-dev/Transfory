@@ -37,8 +37,8 @@ fit(X: pd.DataFrame, y: Optional[pd.Series] = None) -> MissingValueHandler
 Calculates imputation values for each column according to the selected strategy and stores them in `_fitted_params`.
 
 #### `transform`
-``python
-Calculates imputation values for each column according to the selected strategy and stores them in _fitted_params.
+```python
+transform(X: pd.DataFrame) -> pd.DataFrame
 ```
 Applies the stored imputation values to fill missing values in the DataFrame.
 
