@@ -26,8 +26,8 @@ BaseTransformer(
 
 | Parameter        | Type                                            | Description         |
 | ---------------- | ----------------------------------------------- | ------------------------------------------- |
-| name             | Optional[str]             | Human-readable name for the transformer. Defaults to the class name. |
-| logging_callback | Optional[Callable[[str, Dict[str, Any]], None]] | Optional logger function called after `fit` or `transform`.          |
+| `name`             | `Optional[str]`             | Human-readable name for the transformer. Defaults to the class name. |
+| `logging_callback` | `Optional[Callable[[str, Dict[str, Any]], None]]` | Optional logger function called after `fit` or `transform`.          |
 
 
 ## Properties
