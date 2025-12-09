@@ -14,7 +14,7 @@ FeatureGenerator(
 )
 ```
 
-## Paraneters
+## Parameters
 
 | Parameter | Type     | Description |
 | --------- | ---------| ----------- |
