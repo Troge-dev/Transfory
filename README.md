@@ -1,6 +1,6 @@
 # Transfory
 
-[![PyPI version](https://badge.fury.io/py/transfory.svg)](https://badge.fury.io/py/transfory)
+[![PyPI](https://img.shields.io/badge/PyPI-transfory%201.3.0-green?labelColor=black)](https://pypi.org/project/transfory/)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/transfory)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
