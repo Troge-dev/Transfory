@@ -2,6 +2,7 @@ import pandas as pd
 from typing import Optional, List
 from .base import BaseTransformer
 from .exceptions import ConfigurationError, NoApplicableColumnsError
+
 class OutlierHandler(BaseTransformer):
     """
     Handles outliers in numerical columns using capping methods.

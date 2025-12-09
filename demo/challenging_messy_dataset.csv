@@ -1,0 +1,201 @@
+customer_id,age,income,city,gender,join_date,last_purchase_amount,membership_level,is_active,notes
+1,27.0,148789.0,,m,2016-12-01,49290.0,,Y,loyal discount complaint
+2,87.0,156820.0,Iligan,Female,2021-08-10,35064.0,None,Y,discount satisfied complaint
+3,36.0,145198.0,Cagayan de Oro,M,2025-09-29,33169.0,Silver,false,loyal discount issue
+4,42.0,47638.0,Cebu,f,2017-08-28,42819.0,Platinum,1,payment vip issue
+5,45.0,114186.0,Cagayan de Oro,Male,2014-07-05,43641.0,vip,N,loyal discount issue
+6,,120076.0,Quezon City,F,2025-12-29,45368.0,Silver,Yes,discount issue vip
+7,,104462.0,Manila,F,2018-06-15,26162.0,VIP,N,satisfied loyal payment
+8,177.0,113592.0,Davao,F,2014-08-02,43385.0,vip,false,complaint payment issue
+9,74.0,91152.0,Cebu,F,2022-05-05,8806.0,None,1,vip discount satisfied
+10,76.0,21910.0,Iligan,Female,2018-01-28,29825.0,None,true,vip delay satisfied
+11,85.0,109776.0,Manila,Male,2024-07-02,36168.0,SILVER,false,payment issue satisfied
+12,26.0,174601.0,Cagayan de Oro,Male,2019-12-09,22756.0,None,?,loyal delay issue
+13,,12812.0,Quezon City,f,2015-07-15,48331.0,Platinum,true,satisfied issue delay
+14,72.0,125421.0,Cebu,m,2024-05-04,44622.0,Silver,0,vip issue delay
+15,47.0,196210.0,Quezon City,Unknown,2023-02-21,14666.0,Silver,0,payment satisfied discount
+16,16.0,153118.0,Iligan,f,2019-09-10,38000.0,VIP,1,discount vip satisfied
+17,16.0,18111.0,Cagayan de Oro,Female,2019-02-15,10905.0,,N,issue loyal complaint
+18,46.0,168818.0,Davao,Unknown,2024-04-01,19973.0,Bronze,N,loyal complaint discount
+19,60.0,121221.0,Quezon City,Female,2018-08-25,34646.0,None,0,loyal vip discount
+20,74.0,9846.0,Cebu,f,2020-12-20,17181.0,,0,delay vip discount
+21,65.0,146541.0,Davao,f,2024-09-29,18413.0,VIP,N,discount vip complaint
+22,53.0,189448.0,Cagayan de Oro,f,2017-10-24,,VIP,false,payment issue discount
+23,,87477.0,Cagayan de Oro,f,2017-04-16,13209.0,vip,No,payment issue discount
+24,13.0,41254.0,Manila,M,2020-06-10,,Platinum,Yes,issue payment delay
+25,,132781.0,Quezon City,M,2018-02-18,33948.0,VIP,1,satisfied vip delay
+26,20.0,149937.0,Cebu,Female,2019-07-30,2663.0,Gold,true,vip loyal satisfied
+27,53.0,174459.0,Quezon City,m,2025-13-40,,Silver,Yes,delay payment issue
+28,46.0,,,Male,2013-06-24,29850.0,Silver,1,complaint delay loyal
+29,49.0,102070.0,Iligan,Male,2016-04-26,261.0,Bronze,Yes,payment issue complaint
+30,47.0,115288.0,Manila,F,2013-04-11,28831.0,Platinum,Yes,satisfied loyal delay
+31,15.0,136309.0,Quezon City,M,2015-12-15,,vip,Y,issue loyal delay
+32,26.0,93555.0,Cebu,f,2024-06-14,,Bronze,false,complaint delay payment
+33,54.0,52925.0,Iligan,f,2017-07-07,641.0,SILVER,Yes,vip delay payment
+34,64.0,181904.0,Iligan,M,2022-10-04,48931.0,Gold,1,delay satisfied complaint
+35,27.0,95740.0,Davao,Female,2014-02-16,,None,false,discount satisfied loyal
+36,83.0,134501.0,Davao,Male,2014-07-15,10820.0,vip,true,issue vip discount
+37,74.0,52303.0,Quezon City,Unknown,2025-07-30,,VIP,true,complaint satisfied delay
+38,42.0,152026.0,Iligan,f,2014-05-14,9618.0,VIP,Y,delay loyal complaint
+39,74.0,158646.0,Cagayan de Oro,Male,2020-09-13,12548.0,vip,Y,delay issue discount
+40,89.0,185630.0,Cagayan de Oro,Female,2025-03-23,793253.0,Platinum,N,vip complaint payment
+41,39.0,144090.0,Iligan,m,2015-05-01,707688.0,Platinum,Y,issue complaint vip
+42,56.0,92122.0,Davao,,2015-01-24,30368.0,Gold,No,loyal issue complaint
+43,64.0,14408.0,Quezon City,Unknown,2017-01-04,,vip,1,satisfied discount complaint
+44,24.0,60356.0,Davao,Male,2019-12-07,,Platinum,true,complaint discount satisfied
+45,68.0,41154.0,,Female,2023-10-15,353072.0,Platinum,Yes,issue delay discount
+46,66.0,68201.0,Quezon City,Male,2018-05-18,17933.0,vip,0,payment delay vip
+47,31.0,55197.0,Iligan,m,2018-06-20,8099.0,Bronze,No,issue loyal discount
+48,82.0,73435.0,Quezon City,Unknown,2020-07-17,25379.0,VIP,No,issue complaint loyal
+49,,135108.0,Manila,f,2022-04-04,446150.0,Gold,false,loyal discount vip
+50,29.0,156550.0,Davao,M,2017-03-26,2939.0,vip,true,vip issue complaint
+51,82.0,133714.0,Cagayan de Oro,m,2013-12-01,,VIP,1,satisfied payment loyal
+52,,85325.0,Manila,F,2018-03-14,7631.0,Bronze,1,delay payment complaint
+53,71.0,85077.0,Manila,m,2020-01-17,45703.0,None,Yes,loyal complaint issue
+54,71.0,134885.0,Iligan,Male,2019-02-11,,Bronze,0,payment satisfied issue
+55,31.0,,Manila,m,2020-12-07,9535.0,SILVER,N,issue discount vip
+56,45.0,179987.0,Manila,M,2025-13-40,17115.0,SILVER,Y,discount delay issue
+57,13.0,62028.0,Cagayan de Oro,Male,2025-13-40,9933.0,vip,N,vip payment loyal
+58,35.0,118945.0,Cebu,Unknown,2022-07-16,,Gold,N,satisfied delay payment
+59,175.0,184399.0,Davao,Unknown,2014-09-19,30414.0,None,true,complaint issue vip
+60,14.0,784260.0,Cagayan de Oro,Female,2014-09-23,15992.0,,Yes,issue loyal payment
+61,49.0,133085.0,Davao,Unknown,2021-11-02,31458.0,vip,true,complaint vip satisfied
+62,31.0,177502.0,Quezon City,Unknown,2024-11-30,1271.0,Bronze,Yes,complaint vip discount
+63,66.0,65264.0,Manila,f,2024-09-14,12029.0,,No,discount loyal delay
+64,,106945.0,Davao,Unknown,2020-02-10,711961.0,Silver,1,vip satisfied payment
+65,50.0,148649.0,,F,2015-02-13,,SILVER,false,complaint payment delay
+66,,146855.0,Cebu,Male,2023-04-06,31803.0,,No,complaint satisfied issue
+67,37.0,76526.0,Quezon City,f,2024-06-18,29155.0,VIP,1,loyal satisfied vip
+68,78.0,103270.0,Manila,f,2023-09-01,,VIP,true,payment delay discount
+69,45.0,,Manila,M,2024-10-29,24359.0,Silver,No,loyal issue satisfied
+70,32.0,79480.0,Davao,m,2016-10-21,19546.0,,No,payment discount loyal
+71,45.0,164989.0,Cagayan de Oro,Male,2023-01-22,,Silver,false,discount vip complaint
+72,34.0,10759.0,Iligan,m,2020-09-29,23581.0,Silver,true,satisfied delay payment
+73,63.0,173791.0,Davao,Unknown,2021-05-19,21108.0,Bronze,Y,loyal delay satisfied
+74,42.0,168024.0,Quezon City,F,2019-06-14,3748.0,VIP,Y,complaint vip satisfied
+75,81.0,158521.0,Manila,F,2017-04-30,46236.0,Bronze,No,issue delay satisfied
+76,,168937.0,Manila,Female,2021-09-12,12822.0,vip,Yes,vip delay complaint
+77,29.0,47565.0,Davao,M,2014-08-03,24587.0,Gold,false,payment vip issue
+78,18.0,138948.0,,Unknown,2013-05-23,34722.0,Silver,Yes,vip discount complaint
+79,58.0,140026.0,Iligan,Male,2021-04-16,12919.0,Gold,N,delay satisfied vip
+80,75.0,,,m,2015-02-04,31033.0,vip,No,issue complaint vip
+81,79.0,137177.0,Manila,F,2016-01-26,18233.0,vip,0,discount loyal vip
+82,70.0,,Manila,Female,2024-02-05,6923.0,None,1,vip delay complaint
+83,,39678.0,Quezon City,Male,2022-05-21,34981.0,Bronze,Y,discount complaint satisfied
+84,35.0,171552.0,Cagayan de Oro,F,2023-05-04,25743.0,SILVER,true,satisfied loyal delay
+85,29.0,94595.0,Iligan,F,2015-03-15,48663.0,Bronze,0,issue payment satisfied
+86,60.0,171893.0,Cebu,m,2017-05-08,437924.0,vip,true,satisfied payment issue
+87,62.0,128235.0,Davao,Female,2017-01-29,49259.0,None,No,issue payment complaint
+88,,75358.0,Davao,Female,2020-10-26,7339.0,Bronze,true,complaint satisfied vip
+89,,25032.0,Manila,m,2017-02-19,2385.0,Platinum,true,vip loyal satisfied
+90,32.0,190532.0,Cebu,f,2020-02-06,20009.0,,false,satisfied issue loyal
+91,26.0,32236.0,Cebu,Unknown,2017-09-02,11216.0,,true,issue loyal complaint
+92,,103914.0,Manila,Male,2024-04-03,6729.0,SILVER,No,vip loyal complaint
+93,44.0,141351.0,Quezon City,Unknown,2016-06-17,,SILVER,0,payment discount delay
+94,70.0,1406739.0,Cagayan de Oro,f,2018-12-13,47071.0,Bronze,false,satisfied complaint discount
+95,,185720.0,Davao,M,2023-11-12,11305.0,VIP,N,issue complaint discount
+96,,177671.0,Iligan,f,2019-03-03,672598.0,VIP,0,vip discount complaint
+97,66.0,108608.0,Cagayan de Oro,M,2020-03-31,42970.0,,true,vip delay loyal
+98,65.0,60693.0,Cebu,Unknown,2019-02-23,694341.0,vip,1,discount loyal delay
+99,18.0,135678.0,Davao,M,2013-09-23,20195.0,VIP,No,loyal satisfied discount
+100,67.0,70268.0,Cagayan de Oro,,2022-01-14,,VIP,No,issue discount loyal
+101,42.0,180024.0,Cagayan de Oro,f,2024-05-23,,vip,N,loyal delay payment
+102,70.0,57756.0,,M,2020-03-15,24317.0,vip,Y,delay payment discount
+103,35.0,90182.0,Cagayan de Oro,Unknown,2024-01-12,11839.0,,Y,satisfied vip payment
+104,,56924.0,Quezon City,Male,2017-12-07,745.0,vip,Y,discount satisfied vip
+105,46.0,110332.0,Davao,Female,2015-08-30,22053.0,SILVER,Y,payment discount issue
+106,13.0,110371.0,Quezon City,f,2025-13-40,16187.0,Platinum,N,payment issue satisfied
+107,81.0,20555.0,Iligan,Unknown,2023-12-09,42045.0,vip,0,delay issue complaint
+108,,98599.0,Quezon City,M,2024-04-02,24865.0,VIP,N,loyal delay complaint
+109,63.0,125021.0,Cebu,f,2024-11-28,,Platinum,false,loyal discount satisfied
+110,81.0,129900.0,Iligan,F,2021-03-06,13330.0,None,N,complaint issue vip
+111,81.0,123130.0,Cagayan de Oro,Female,2014-02-02,11539.0,SILVER,false,payment complaint issue
+112,51.0,185492.0,Davao,F,2024-06-13,769853.0,Silver,true,loyal payment complaint
+113,35.0,109424.0,Cagayan de Oro,M,2013-02-08,27616.0,Silver,false,discount complaint issue
+114,64.0,92559.0,Cagayan de Oro,Unknown,2021-06-06,10587.0,vip,Yes,issue loyal satisfied
+115,13.0,,Cagayan de Oro,Female,2025-01-13,328795.0,vip,0,vip discount satisfied
+116,14.0,,Cagayan de Oro,F,2023-05-11,,,true,satisfied issue payment
+117,36.0,,Davao,m,2014-04-23,,,Y,satisfied issue discount
+118,45.0,29581.0,Manila,Male,2017-08-07,33309.0,,1,payment complaint delay
+119,45.0,78626.0,Cebu,Female,2013-02-15,37496.0,VIP,N,issue satisfied loyal
+120,25.0,103006.0,Cebu,m,2014-10-05,610925.0,Platinum,1,delay discount complaint
+121,,99327.0,Manila,M,2018-03-06,33260.0,,0,vip satisfied payment
+122,,141822.0,Cagayan de Oro,Unknown,2017-09-21,21225.0,,1,satisfied complaint discount
+123,20.0,1806170.0,Quezon City,M,2023-06-27,17861.0,Platinum,true,loyal complaint delay
+124,,168007.0,Iligan,Female,2021-11-23,21080.0,VIP,No,discount loyal delay
+125,19.0,96833.0,Manila,F,2014-09-26,6242.0,Platinum,1,satisfied loyal discount
+126,87.0,177270.0,Quezon City,m,2021-03-21,,None,No,delay issue payment
+127,48.0,50786.0,Iligan,Unknown,2024-05-14,4349.0,Bronze,0,issue vip complaint
+128,61.0,,Manila,f,2014-03-17,15382.0,vip,1,issue discount satisfied
+129,36.0,157922.0,Cagayan de Oro,F,2020-02-04,769164.0,vip,Yes,issue delay loyal
+130,67.0,61375.0,Cebu,Female,2018-07-20,11102.0,vip,false,vip delay complaint
+131,42.0,143055.0,Davao,Unknown,2023-03-21,4593.0,vip,No,loyal satisfied delay
+132,25.0,,Iligan,f,2020-12-15,31755.0,vip,false,satisfied discount payment
+133,,15640.0,Cebu,Unknown,2013-08-21,,,No,vip complaint issue
+134,88.0,167417.0,,Unknown,2021-12-29,47292.0,SILVER,true,payment discount satisfied
+135,64.0,119017.0,Manila,Female,2025-06-26,32798.0,VIP,0,discount payment delay
+136,,,Cagayan de Oro,F,2015-08-21,,Bronze,false,complaint loyal delay
+137,,36788.0,Davao,Female,2025-05-12,14949.0,Bronze,true,payment delay loyal
+138,64.0,48974.0,Iligan,f,2015-11-24,5474.0,Silver,Y,payment discount complaint
+139,69.0,70916.0,Iligan,Unknown,2016-11-26,9985.0,,true,satisfied complaint vip
+140,51.0,67606.0,Manila,,2017-12-21,1592.0,Platinum,No,vip satisfied delay
+141,87.0,143502.0,Quezon City,m,2015-05-29,45000.0,Bronze,false,delay loyal satisfied
+142,70.0,11050.0,Quezon City,m,2013-06-10,7468.0,Silver,Yes,complaint loyal vip
+143,58.0,195691.0,Davao,f,2025-13-40,612023.0,Gold,true,delay vip issue
+144,39.0,,Iligan,f,2025-13-40,,VIP,Yes,satisfied payment complaint
+145,,,Cagayan de Oro,Male,2015-11-16,523563.0,Platinum,No,payment loyal vip
+146,77.0,175472.0,Cagayan de Oro,Female,2022-02-15,49778.0,Bronze,true,complaint discount delay
+147,57.0,52001.0,Manila,Unknown,2021-03-27,14968.0,Silver,false,loyal discount complaint
+148,31.0,177645.0,Davao,f,2014-03-01,12566.0,VIP,Y,vip loyal payment
+149,31.0,1058924.0,Iligan,M,2025-13-40,,VIP,1,delay payment satisfied
+150,70.0,194914.0,Davao,F,2019-05-13,30895.0,Gold,No,satisfied delay discount
+151,51.0,50844.0,Manila,f,2020-04-12,573334.0,Platinum,false,satisfied issue complaint
+152,75.0,70665.0,Iligan,F,2020-10-26,20489.0,Bronze,true,vip discount payment
+153,193.0,195626.0,Cebu,f,2015-10-19,,Gold,N,vip loyal payment
+154,59.0,,Quezon City,m,2017-02-14,,vip,Y,payment issue delay
+155,48.0,55600.0,Iligan,m,2021-05-24,4478.0,None,N,loyal satisfied vip
+156,,182946.0,Cagayan de Oro,m,2013-10-01,45596.0,,Yes,discount payment delay
+157,61.0,121855.0,Manila,Male,2018-07-22,8433.0,Silver,No,discount satisfied payment
+158,66.0,69504.0,Quezon City,Female,2014-03-31,5908.0,Gold,Y,satisfied payment issue
+159,,157746.0,Manila,m,2019-09-25,17643.0,VIP,No,discount loyal issue
+160,28.0,74160.0,Davao,Unknown,2019-06-29,30602.0,Silver,Y,issue delay payment
+161,20.0,,,m,2015-01-14,31437.0,,true,vip satisfied complaint
+162,72.0,51520.0,Cagayan de Oro,M,2023-09-28,5563.0,Bronze,true,delay discount vip
+163,76.0,114595.0,Iligan,M,2018-06-02,35734.0,Silver,true,vip satisfied loyal
+164,45.0,79831.0,Cebu,F,2022-11-21,4592.0,VIP,false,issue complaint satisfied
+165,25.0,149975.0,Cebu,Male,2025-06-24,17840.0,Bronze,false,delay loyal vip
+166,81.0,134991.0,Cebu,f,2023-03-29,8310.0,None,true,discount issue loyal
+167,,159201.0,Cebu,Male,2016-01-20,42192.0,Platinum,1,payment complaint delay
+168,17.0,108616.0,Davao,F,2024-09-30,33855.0,vip,true,satisfied vip discount
+169,61.0,114228.0,Cagayan de Oro,M,2022-12-24,13754.0,Platinum,Yes,issue loyal vip
+170,71.0,95206.0,Davao,M,2025-13-40,,Gold,false,vip discount delay
+171,,57874.0,Cagayan de Oro,F,2018-08-12,23477.0,vip,Yes,satisfied complaint issue
+172,,87249.0,Cagayan de Oro,Female,2016-08-11,25095.0,VIP,Y,loyal discount payment
+173,33.0,101241.0,Cagayan de Oro,Male,2018-11-10,641075.0,Platinum,N,delay satisfied complaint
+174,81.0,100659.0,Cagayan de Oro,Female,2021-07-01,24406.0,None,Yes,delay vip payment
+175,35.0,84418.0,Iligan,Male,2017-04-27,36736.0,Silver,false,complaint delay loyal
+176,29.0,153059.0,,M,2021-02-15,9201.0,Bronze,Y,delay vip payment
+177,63.0,85242.0,Iligan,Female,2017-04-11,,VIP,N,loyal vip payment
+178,44.0,153353.0,Davao,Female,2019-12-04,17254.0,vip,0,delay complaint vip
+179,38.0,166732.0,Manila,Unknown,2024-11-07,34496.0,Bronze,false,delay payment vip
+180,62.0,124953.0,Cebu,,2025-02-25,22885.0,vip,true,payment satisfied complaint
+181,69.0,132797.0,Quezon City,f,2015-01-07,2382.0,None,N,issue loyal delay
+182,,29953.0,Cebu,f,2018-03-07,38344.0,Gold,0,discount payment complaint
+183,26.0,124374.0,Davao,Male,2013-11-22,39932.0,Platinum,Y,delay issue discount
+184,76.0,161499.0,Quezon City,Female,2022-11-13,,vip,Y,discount loyal satisfied
+185,42.0,,Iligan,Female,2023-07-27,17614.0,SILVER,false,payment loyal discount
+186,64.0,102106.0,Cagayan de Oro,m,2025-13-40,36888.0,Bronze,false,issue payment vip
+187,42.0,1692673.0,Davao,,2023-11-27,42949.0,Gold,true,payment complaint vip
+188,16.0,146612.0,Cebu,Female,2024-02-26,39858.0,Bronze,1,payment issue loyal
+189,81.0,84932.0,Cebu,Male,2015-10-02,47875.0,Bronze,false,satisfied payment complaint
+190,55.0,87797.0,Manila,F,2015-08-17,,vip,No,payment issue delay
+191,35.0,184485.0,Iligan,Male,2017-05-12,43003.0,SILVER,false,issue vip loyal
+192,20.0,179286.0,Cebu,Male,2025-03-12,16490.0,Silver,false,delay complaint loyal
+193,79.0,108986.0,Quezon City,M,2024-04-29,19090.0,None,Y,complaint delay vip
+194,62.0,21857.0,Quezon City,Male,2019-04-25,17397.0,vip,Y,complaint loyal delay
+195,54.0,188362.0,Cagayan de Oro,Male,2020-03-08,11838.0,SILVER,No,complaint delay discount
+196,24.0,163091.0,Cebu,M,2015-12-25,,Bronze,No,complaint delay payment
+197,57.0,124672.0,Cebu,m,2013-04-25,13803.0,None,1,delay payment issue
+198,68.0,94553.0,Cebu,f,2025-13-40,48713.0,,0,satisfied payment vip
+199,38.0,178899.0,,m,2017-09-27,42517.0,Gold,1,payment discount loyal
+200,64.0,155323.0,Quezon City,Female,2023-06-12,28326.0,None,N,loyal complaint delay

@@ -206,6 +206,7 @@ from transfory.featuregen import FeatureGenerator
 feature_gen = FeatureGenerator(degree=2, include_interactions=True)
 ```
 
+
 ## Comparison: Scikit-Learn vs Transfory
 
 `Transfory` is inspired by scikit-learn, but it is built specifically to be **more transparent, Pandas-native, and beginner-friendly**.
@@ -226,29 +227,7 @@ This table summarizes the key differences.
 | **Logging**                | None by default.                                                        | Automatic logging through callbacks.                                       |
 | **Intended Users**         | Production ML engineers, researchers.                                   | Students, data analysts, instructors, prototyping ML pipelines.            |
 
-## Handling Real-World Messiness
 
-While Transfory provides a suite of general-purpose tools, real-world data is often messy in unique ways that require custom logic. This is where Transfory's object-oriented design truly shines.
-
-### The Blueprint: Creating a Custom Cleaner
-
-Transfory is built to be easily extended. When you encounter a data cleaning challenge that is specific to your dataset (like standardizing inconsistent categories or parsing complex strings), you can create your own transformer.
-
-By inheriting from BaseTransformer, you get a powerful blueprint. All you need to do is implement your custom logic in the _fit and _transform methods.
-
-## Limitations
-
-Transfory is a specialized toolkit designed for data preprocessing and transformation. While it excels at explainability and ease of use, it has some important limitations to be aware of:
-
-*   **Preprocessing-Focused**: Transfory is designed exclusively for data cleaning and transformation. It does not include machine learning models, classifiers, or regressors. For model training, you'll need to integrate with scikit-learn, TensorFlow, PyTorch, or other ML libraries.
-*   **Pandas-Only**: Transfory works exclusively with Pandas DataFrames. If your workflow requires Dask, Spark, Polars, or other data processing frameworks, Transfory may not be the right fit.
-*   **No Built-In Parallelization**: While `ColumnTransformer` applies transformations efficiently, it does not leverage multi-core or distributed computing. For very large datasets, you may need to parallelize manually.
-*   **Limited Statistical Methods**: Transfory provides common statistical approaches (mean, median, mode imputation; z-score and min-max scaling). For advanced statistical techniques, consider using specialized libraries like `statsmodels`.
-*   **Memory Usage**: All transformations are performed in-memory on your Pandas DataFrame. For datasets larger than available RAM, you'll need to use chunking or distributed solutions.
-*   **Limited Time Series Support**: While `DatetimeFeatureExtractor` can extract basic features from datetime columns, Transfory is not designed for advanced time series analysis or forecasting tasks.
-*   **Not Production-Optimized**: Transfory prioritizes clarity and explainability over performance. For production systems with strict latency requirements, you may need faster alternatives.
-
-For use cases beyond these limitations, Transfory serves as an excellent learning and prototyping tool before moving to production-grade systems.
 
 ## Demos
 
