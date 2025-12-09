@@ -2,7 +2,7 @@ import pandas as pd
 from itertools import combinations
 from typing import Optional
 from .base import BaseTransformer
-
+from .exceptions import NoApplicableColumnsError
 class FeatureGenerator(BaseTransformer):
     def __init__(self, degree=2, include_interactions=True, name: Optional[str] = None, logging_callback: Optional[callable] = None):
         super().__init__(
@@ -15,6 +15,10 @@ class FeatureGenerator(BaseTransformer):
     def _fit(self, X: pd.DataFrame, y=None):
         # Only select numeric columns
         numeric_cols = list(X.select_dtypes(include="number").columns)
+        if not numeric_cols:
+            raise NoApplicableColumnsError(
+                f"FeatureGenerator found no numeric columns to generate features from. Columns available: {X.columns.tolist()}"
+            )
         self._fitted_params["columns_to_process"] = numeric_cols
 
     def _transform(self, X: pd.DataFrame) -> pd.DataFrame:

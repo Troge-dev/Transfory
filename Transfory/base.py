@@ -1,21 +1,11 @@
 from __future__ import annotations
 import abc
+from .exceptions import FrozenTransformerError, NotFittedError, ColumnMismatchError
 import pickle
 import joblib
 from typing import Any, Callable, Dict, Iterable, List, Optional
 import pandas as pd
 import os
-
-
-class NotFittedError(RuntimeError):
-    """Raised when transform is called before fit."""
-    pass
-
-
-class FrozenTransformerError(RuntimeError):
-    """Raised when attempting to fit a frozen transformer."""
-    pass
-
 
 class BaseTransformer(abc.ABC):
     """
@@ -172,10 +162,10 @@ class BaseTransformer(abc.ABC):
             transform_cols_set = set(X.columns)
 
             if not fit_cols_set.issubset(transform_cols_set):
-                missing_cols = fit_cols_set - transform_cols_set
-                raise ValueError(
+                missing_cols = fit_cols_set - transform_cols_set # Use ColumnMismatchError
+                raise ColumnMismatchError(
                     f"Missing columns for {self.name}. Transformer was fitted on {self._last_input_columns}, "
-                    f"but the following columns are missing: {list(missing_cols)}."
+                    f"but the following columns are missing from the input: {list(missing_cols)}."
                 )
 
         # return a shallow copy to avoid accidental in-place edits by subclasses

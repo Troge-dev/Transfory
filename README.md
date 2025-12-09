@@ -128,10 +128,16 @@ Handles missing (`NaN`) values in a DataFrame.
 *   **Strategies**: `mean`, `median`, `mode`, `constant` (with `fill_value`).
 
 ```python
+import pandas as pd
+import numpy as np
 from transfory.missing import MissingValueHandler
 
-# Impute with the mean for numeric columns and mode for categorical
+data = pd.DataFrame({'score': [88, 92, np.nan, 75], 'grade': ['A', 'A', 'C', np.nan]})
+
+# Impute missing 'score' with the mean and 'grade' with the mode
 imputer = MissingValueHandler(strategy="mean")
+transformed_data = imputer.fit_transform(data)
+print(transformed_data)
 ```
 
 #### `Encoder`
@@ -141,10 +147,15 @@ Converts categorical columns into a numerical format.
 *   **Methods**: `onehot` (creates binary columns), `label` (assigns a unique integer to each category).
 
 ```python
+import pandas as pd
 from transfory.encoder import Encoder
 
-# Create new columns for each category
+data = pd.DataFrame({'color': ['red', 'blue', 'green', 'red']})
+
+# Convert the 'color' column into one-hot encoded format
 encoder = Encoder(method="onehot")
+transformed_data = encoder.fit_transform(data)
+print(transformed_data)
 ```
 
 #### `Scaler`

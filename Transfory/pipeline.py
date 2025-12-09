@@ -1,8 +1,12 @@
 from __future__ import annotations
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 import pandas as pd
 import joblib
 from .base import BaseTransformer
+from .exceptions import InvalidStepError, TransforyError, NotFittedError, FrozenTransformerError, PipelineLogicError, PipelineProcessingError, ConfigurationError
+from .scaler import Scaler
+from .encoder import Encoder
+from .outlier import OutlierHandler
 
 
 class Pipeline(BaseTransformer):
@@ -12,7 +16,7 @@ class Pipeline(BaseTransformer):
     Example:
     --------
     >>> from transfory.base import ExampleScaler
-    >>> from transfory.pipeline import Pipeline
+    >>> from transfory.Transfory.pipeline import Pipeline
     >>> from transfory.imputer import Imputer
     >>> from transfory.encoder import Encoder
     >>> pipe = Pipeline([
@@ -27,23 +31,67 @@ class Pipeline(BaseTransformer):
     def __init__(self, steps: List[Tuple[str, BaseTransformer]], name: Optional[str] = None,
                  logging_callback: Optional[callable] = None):
         super().__init__(name=name or "Pipeline", logging_callback=logging_callback)
-        self.steps: List[Tuple[str, BaseTransformer]] = steps
-        self._validate_steps() # This remains
+        self.steps = steps
+        self.named_steps = self._validate_steps()
+        self._validate_logical_order()
 
     # ------------------------------
     # Validation
     # ------------------------------
-    def _validate_steps(self) -> None:
-        """Ensure all steps are valid (name, BaseTransformer instance)."""
-        if not isinstance(self.steps, list):
-            raise TypeError("Pipeline steps must be a list of (name, transformer) tuples.")
+    def _validate_steps(self) -> Dict[str, BaseTransformer]:
+        """
+        Validates that the steps are a list of tuples and that each transformer
+        is valid.
+        """
+        if not isinstance(self.steps, list) or not all(isinstance(s, tuple) and len(s) == 2 for s in self.steps):
+            raise TypeError("The 'steps' argument must be a list of (name, transformer) tuples.")
 
-        for step in self.steps:
-            if not isinstance(step, tuple) or len(step) != 2:
-                raise ValueError("Each step must be a (name, transformer) tuple.")
-            name, transformer = step
-            if not isinstance(transformer, BaseTransformer):
-                raise TypeError(f"Step '{name}' must inherit from BaseTransformer.")
+        names, transformers = zip(*self.steps)
+        
+        if len(set(names)) != len(names):
+            raise ValueError(f"Transformer names must be unique. Found duplicates: {names}")
+        
+        for name, transformer in self.steps:
+            if transformer != 'passthrough' and not (hasattr(transformer, "fit") and hasattr(transformer, "transform")):
+                raise InvalidStepError(
+                    f"All steps in a pipeline must be transformers with 'fit' and 'transform' methods, "
+                    f"or the string 'passthrough'. Step '{name}' is of type {type(transformer).__name__} which is not a valid transformer."
+                )
+        return dict(self.steps)
+
+    def _validate_logical_order(self) -> None:
+        """
+        Performs heuristic checks for common logical errors in pipeline ordering.
+        Uses CLASS-NAME string matching to avoid import-path mismatch issues.
+        """
+
+        # Extract (name, class_name) for each step
+        step_info = [(name, trans.__class__.__name__) for name, trans in self.steps]
+
+        # 1. Find first Encoder position
+        encoder_positions = [
+            idx for idx, (_, class_name) in enumerate(step_info)
+            if class_name == "Encoder"
+        ]
+
+        if not encoder_positions:
+            return  # No encoder → nothing to validate
+
+        first_encoder_idx = encoder_positions[0]
+        first_encoder_name = step_info[first_encoder_idx][0]
+
+        # 2. Check for Scaler or OutlierHandler before the Encoder
+        for i in range(first_encoder_idx):
+            step_name, class_name = step_info[i]
+
+            if class_name in ("Scaler", "OutlierHandler"):
+                raise PipelineLogicError(
+                    f"Logical order error: Step '{step_name}' ({class_name}) appears before "
+                    f"step '{first_encoder_name}' (Encoder). Numeric transformers "
+                    f"should run AFTER categorical encoding."
+                )
+
+
 
     # ------------------------------
     # Core fitting logic
@@ -63,13 +111,19 @@ class Pipeline(BaseTransformer):
                 )
 
             self._log("fit_step_start", {"step": name, "shape": current_data.shape})
-            if i < last_step_idx:
-                current_data = transformer.fit_transform(current_data, y)
-            else: # For the last step, just fit.
-                transformer.fit(current_data, y)
-
+            try:
+                if i < last_step_idx:
+                    current_data = transformer.fit_transform(current_data, y)
+                else: # For the last step, just fit.
+                    transformer.fit(current_data, y)
+            except Exception as e:
+                raise PipelineProcessingError(
+                    f"Error during 'fit' in step '{name}' ({transformer.__class__.__name__}): {e}"
+                ) from e
+                
             self._log("fit_end", {"step": name, "output_shape": current_data.shape})
 
+        # This part of _fit is for the pipeline itself, not individual steps
         self._fitted_params = {
             "step_names": [n for n, _ in self.steps],
             "n_steps": len(self.steps),
@@ -88,7 +142,12 @@ class Pipeline(BaseTransformer):
                 )
 
             self._log("transform_step", {"step": name, "input_shape": current_data.shape})
-            current_data = transformer.transform(current_data)
+            try:
+                current_data = transformer.transform(current_data)
+            except Exception as e:
+                raise PipelineProcessingError(
+                    f"Error during 'transform' in step '{name}' ({transformer.__class__.__name__}): {e}"
+                ) from e
 
             self._log("transform_done", {"step": name, "output_shape": current_data.shape})
         return current_data
@@ -113,7 +172,12 @@ class Pipeline(BaseTransformer):
                 )
 
             self._log("fit_transform_step", {"step": name, "input_shape": current_data.shape})
-            current_data = transformer.fit_transform(current_data, y)
+            try:
+                current_data = transformer.fit_transform(current_data, y)
+            except Exception as e:
+                raise PipelineProcessingError(
+                    f"Error during 'fit_transform' in step '{name}' ({transformer.__class__.__name__}): {e}"
+                ) from e
 
             self._log("fit_transform_done", {"step": name, "output_shape": current_data.shape})
 

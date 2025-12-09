@@ -1,6 +1,7 @@
 import pandas as pd
 from typing import Optional
 from .base import BaseTransformer
+from .exceptions import ConfigurationError, NoApplicableColumnsError
 
 class Encoder(BaseTransformer):
     def __init__(self, method="onehot", handle_unseen="ignore", name: Optional[str] = None):
@@ -8,11 +9,11 @@ class Encoder(BaseTransformer):
         
         supported_methods = ["label", "onehot"]
         if method not in supported_methods:
-            raise ValueError(f"Method '{method}' is not supported. Use one of {supported_methods}.")
+            raise ConfigurationError(f"Method '{method}' is not supported. Use one of {supported_methods}.")
 
         supported_unseen = ["ignore", "error"]
         if handle_unseen not in supported_unseen:
-            raise ValueError(f"handle_unseen='{handle_unseen}' is not supported. Use one of {supported_unseen}.")
+            raise ConfigurationError(f"handle_unseen='{handle_unseen}' is not supported. Use one of {supported_unseen}.")
             
         self.method = method
         self.handle_unseen = handle_unseen
@@ -21,6 +22,10 @@ class Encoder(BaseTransformer):
     def _fit(self, X: pd.DataFrame, y=None):
         self._fitted_params["mappings"] = {}
         cat_cols = X.select_dtypes(include=["object", "category"]).columns
+        if cat_cols.empty:
+            raise NoApplicableColumnsError(
+                f"Encoder found no 'object' or 'category' columns to encode. Columns available: {X.columns.tolist()}"
+            )
         for col in cat_cols:
             # Store unique categories found during fitting
             unique_cats = X[col].dropna().unique()
@@ -73,4 +78,3 @@ class Encoder(BaseTransformer):
 
     def __repr__(self):
         return f"Encoder(method='{self.method}', handle_unseen='{self.handle_unseen}')"
-

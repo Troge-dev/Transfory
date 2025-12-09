@@ -1,7 +1,7 @@
 import pandas as pd
 from typing import Optional, List
 from .base import BaseTransformer
-
+from .exceptions import NoApplicableColumnsError
 class DatetimeFeatureExtractor(BaseTransformer):
     """
     Extracts date and time features from datetime columns.
@@ -42,6 +42,11 @@ class DatetimeFeatureExtractor(BaseTransformer):
         for col in cols_to_process:
             if pd.api.types.is_datetime64_any_dtype(X[col]) or pd.to_datetime(X[col], errors='coerce').notna().any():
                 datetime_cols.append(col)
+
+        if not datetime_cols:
+            raise NoApplicableColumnsError(
+                f"DatetimeFeatureExtractor found no convertible datetime columns to process. Columns available: {X.columns.tolist()}"
+            )
 
         self._fitted_params["datetime_columns"] = datetime_cols
 

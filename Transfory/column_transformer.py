@@ -2,7 +2,8 @@ import pandas as pd
 import numpy as np
 import copy
 from typing import Any, Dict, List, Optional, Tuple, Union, Callable
-from .base import BaseTransformer, NotFittedError
+from .base import BaseTransformer
+from .exceptions import InvalidStepError, PipelineProcessingError, NotFittedError, ConfigurationError
 
 class ColumnTransformer(BaseTransformer):
     """
@@ -46,16 +47,27 @@ class ColumnTransformer(BaseTransformer):
         super().__init__(name=name or "ColumnTransformer", logging_callback=logging_callback)
 
         if not isinstance(transformers, list) or not all(isinstance(t, tuple) and len(t) == 3 for t in transformers):
-            raise ValueError("`transformers` must be a list of (name, transformer, columns) tuples.")
+            raise ConfigurationError("`transformers` must be a list of (name, transformer, columns) tuples.")
         
         if remainder not in ['drop', 'passthrough']:
-            raise ValueError("`remainder` must be 'drop' or 'passthrough'.")
+            raise ConfigurationError("`remainder` must be 'drop' or 'passthrough'.")
 
         self.transformers = transformers
         self.remainder = remainder
         self._fitted_params['processed_transformers'] = [] # Stores (name, fitted_transformer, actual_cols)
         self._fitted_params['passthrough_columns'] = [] # Stores columns explicitly passed through
         self._fitted_params['remainder_columns'] = [] # Stores columns implicitly passed through
+        self._validate_transformers()
+
+    def _validate_transformers(self):
+        """Validate the transformers list upon initialization."""
+        names, _, _ = zip(*self.transformers)
+        if len(set(names)) != len(names):
+            raise ValueError(f"Transformer names must be unique. Found duplicates: {names}")
+        
+        for name, trans, _ in self.transformers:
+            if trans not in ['passthrough', 'drop'] and not (hasattr(trans, "fit") and hasattr(trans, "transform")):
+                raise InvalidStepError(f"Transformer '{name}' is not valid. It must be an object with 'fit' and 'transform' methods, or one of 'passthrough', 'drop'.")
 
     def _get_columns_by_selector(self, X: pd.DataFrame, selector: Union[str, List[str], Callable]) -> List[str]:
         """Helper to resolve column selectors."""
@@ -65,13 +77,13 @@ class ColumnTransformer(BaseTransformer):
             if selector == 'numeric':
                 return X.select_dtypes(include=np.number).columns.tolist()
             elif selector == 'categorical':
-                return X.select_dtypes(include=['object', 'category']).columns.tolist()
+                return X.select_dtypes(include=['object', 'category']).columns.tolist() # Use ConfigurationError
             else:
-                raise ValueError(f"Unknown string selector '{selector}'. Use 'numeric', 'categorical', or a list of column names.")
+                raise ConfigurationError(f"Unknown string selector '{selector}'. Use 'numeric', 'categorical', or a list of column names.")
         elif callable(selector):
             selected_cols = selector(X.columns)
             if not isinstance(selected_cols, list):
-                raise TypeError("Callable column selector must return a list of column names.")
+                raise ConfigurationError("Callable column selector must return a list of column names.")
             return [col for col in selected_cols if col in X.columns]
         else:
             raise TypeError(f"Invalid column selector type: {type(selector)}. Must be list, str, or callable.")
@@ -86,7 +98,7 @@ class ColumnTransformer(BaseTransformer):
                 if isinstance(col_selector, list):
                     explicit_passthrough_cols.update(col_selector)
                 else:
-                    raise ValueError(f"When transformer is 'passthrough', columns must be a list of column names, not '{col_selector}'.")
+                    raise ConfigurationError(f"When transformer is 'passthrough', columns must be a list of column names, not '{col_selector}'.")
                 continue # Skip fitting for passthrough
 
             actual_cols = self._get_columns_by_selector(X, col_selector)
@@ -107,7 +119,11 @@ class ColumnTransformer(BaseTransformer):
             )
 
             self._log("fit_sub_transformer_start", {"transformer_name": cloned_transformer.name, "columns": actual_cols, "input_shape": X[actual_cols].shape})
-            cloned_transformer.fit(X[actual_cols], y)
+            try:
+                cloned_transformer.fit(X[actual_cols], y)
+            except Exception as e:
+                raise PipelineProcessingError(f"Error during 'fit' in ColumnTransformer step '{t_name}': {e}") from e
+
             self._log("fit_sub_transformer_end", {"transformer_name": cloned_transformer.name, "columns": actual_cols})
 
             processed_transformers_info.append((t_name, cloned_transformer, actual_cols))
@@ -142,7 +158,11 @@ class ColumnTransformer(BaseTransformer):
                 step_name=f"{t_name}::{sub_step_name}" # Prefix sub-step name
             )
             self._log("transform_sub_transformer_start", {"transformer_name": fitted_transformer.name, "columns": actual_cols, "input_shape": X[actual_cols].shape})
-            transformed_subset = fitted_transformer.transform(X[actual_cols])
+            try:
+                transformed_subset = fitted_transformer.transform(X[actual_cols])
+            except Exception as e:
+                raise PipelineProcessingError(f"Error during 'transform' in ColumnTransformer step '{t_name}': {e}") from e
+
             self._log("transform_sub_transformer_end", {"transformer_name": fitted_transformer.name, "columns": actual_cols, "output_shape": transformed_subset.shape})
             transformed_parts.append(transformed_subset)
 

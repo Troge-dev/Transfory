@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from .base import BaseTransformer as Transformer
-
+from .exceptions import ConfigurationError, NoApplicableColumnsError
 
 class Scaler(Transformer):
     """
@@ -25,7 +25,7 @@ class Scaler(Transformer):
         }
 
         if method not in scaler_map:
-            raise ValueError(f"Method '{method}' is not supported. Available methods: {list(scaler_map.keys())}")
+            raise ConfigurationError(f"Method '{method}' is not supported. Available methods: {list(scaler_map.keys())}")
 
         # The internal scikit-learn scaler instance
         self._scaler = scaler_map[method]()
@@ -34,8 +34,11 @@ class Scaler(Transformer):
     def _fit(self, X: pd.DataFrame, y=None):
         """Fit the scaler on the numerical columns of X."""
         self._columns_to_scale = X.select_dtypes(include="number").columns
-        if not self._columns_to_scale.empty:
-            self._scaler.fit(X[self._columns_to_scale])
+        if self._columns_to_scale.empty:
+            raise NoApplicableColumnsError(
+                f"Scaler found no numeric columns to scale in the provided DataFrame. Columns available: {X.columns.tolist()}"
+            )
+        self._scaler.fit(X[self._columns_to_scale])
 
         # Store the fitted scaler for persistence and inspection, per BaseTransformer design
         self._fitted_params["scaler_instance"] = self._scaler

@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from .base import BaseTransformer as Transformer
+from .exceptions import ConfigurationError
 
 class MissingValueHandler(Transformer):
     """
@@ -17,9 +18,9 @@ class MissingValueHandler(Transformer):
         
         supported_strategies = ["mean", "median", "mode", "constant"]
         if strategy not in supported_strategies:
-            raise ValueError(f"Strategy '{strategy}' is not supported. Use one of {supported_strategies}.")
+            raise ConfigurationError(f"Strategy '{strategy}' is not supported. Use one of {supported_strategies}.")
         if strategy == "constant" and fill_value is None:
-            raise ValueError("`fill_value` must be provided when strategy is 'constant'.")
+            raise ConfigurationError("`fill_value` must be provided when strategy is 'constant'.")
 
         self.strategy = strategy
         self.fill_value = fill_value

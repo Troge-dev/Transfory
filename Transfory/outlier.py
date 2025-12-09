@@ -1,7 +1,7 @@
 import pandas as pd
 from typing import Optional, List
 from .base import BaseTransformer
-
+from .exceptions import ConfigurationError, NoApplicableColumnsError
 class OutlierHandler(BaseTransformer):
     """
     Handles outliers in numerical columns using capping methods.
@@ -20,13 +20,13 @@ class OutlierHandler(BaseTransformer):
 
         supported_methods = ["iqr", "percentile"]
         if method not in supported_methods:
-            raise ValueError(f"Method '{method}' is not supported. Use one of {supported_methods}.")
+            raise ConfigurationError(f"Method '{method}' is not supported. Use one of {supported_methods}.")
 
         if method == 'iqr' and factor <= 0:
-            raise ValueError("Factor for 'iqr' method must be positive.")
+            raise ConfigurationError("Factor for 'iqr' method must be positive.")
 
         if method == 'percentile' and not (0 <= lower_quantile < upper_quantile <= 1):
-            raise ValueError("Percentiles must be between 0 and 1, and lower_quantile must be less than upper_quantile.")
+            raise ConfigurationError("Percentiles must be between 0 and 1, and lower_quantile must be less than upper_quantile.")
 
         self.method = method
         self.factor = factor
@@ -40,6 +40,11 @@ class OutlierHandler(BaseTransformer):
         """Calculate the upper and lower bounds for capping."""
         bounds = {}
         cols_to_process = self.columns or X.select_dtypes(include="number").columns
+
+        if cols_to_process.empty:
+            raise NoApplicableColumnsError(
+                f"OutlierHandler found no numeric columns to process. Columns available: {X.columns.tolist()}"
+            )
 
         for col in cols_to_process:
             if self.method == "iqr":
