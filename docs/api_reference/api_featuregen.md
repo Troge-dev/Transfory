@@ -1,56 +1,102 @@
 # FeatureGenerator API Reference
 
-## Overview  
-`FeatureGenerator` is a numerical feature engineering transformer that creates:
+## Overview
+`FeatureGenerator` is a subclass of `BaseTransformer` that creates polynomial and interaction features from numeric columns in a DataFrame. This transformer is useful for expanding feature spaces in machine learning pipelines.
 
-- **Polynomial features** (e.g., \(x^2, x^3\))
-- **Interaction features** (e.g., \(x_1 \times x_2\))
-
-It inherits from `BaseTransformer` and supports:
-
-- `fit`, `transform`, and `fit_transform`
-- Input validation for pandas DataFrames  
-- Recording fitted parameters  
-- Saving and loading state  
-- Optional logging via `BaseTransformer`
-
-It selects numeric columns during `fit` and generates new features during `transform`.
-
-## Constructor  
+## Constructor
 
 ```python
 FeatureGenerator(
     degree: int = 2,
     include_interactions: bool = True,
     name: Optional[str] = None,
-    logging_callback: Optional[callable] = None
+    logging_callback: Optional[Callable[[str, dict], None]] = None
 )
-```
+
 
 ## Paraneters
 
-| Parameter  | Type | Description |
-| ---------  | ---- | ------------ |
-| `degree`    | `int`  | Maximum polynomial degree to generate. Must be ≥ 2. |
-| `include_interactions` | `bool`  | Whether to generate pairwise interaction features. |
-| `logging_callback` | Optional[callable] | Optional logging function called after transformations. |
+| Parameter | Type     | Description |
+| --------- | ---------| ----------- |
+| `degree`  | int      | Maximum degree for polynomial features. For example, `degree=3` generates x² and x³ features. Default is 2. |
+| `include_interactions` | bool | Whether to include interaction terms (pairwise products of numeric columns). Default is True. |
+| `name` | Optional[str] | Optional human-readable name for the transformer. Defaults to `"FeatureGenerator(degree=X)"`. |
+| `logging_callback`  | Optional[callable] | Optional logging function that receives events and details during transform. |
 
-## Generated Future Types
+## Fitted Parameters
 
-| Feature Type | Description |
-| ------------ | ----------- |
-| Polynomial Features | Generates powers of each numeric column: `x², x³, ..., x^degree` |
-| Interaction Terms | Generates pairwise products: `col1_x_col2` |
+| Key                  | Description                                              |
+| -------------------- | -------------------------------------------------------- |
+| `columns_to_process` | List of numeric columns selected for feature generation. |
 
-## Properties
+## Core Public Methods
 
-Inherited from `BaseTransformer`.
+#### `fit`
+```python
+fit(X: pd.DataFrame, y: Optional[pd.Series] = None) -> FeatureGenerator
+```
+Fits the transformer to the DataFrame.
+- Selects numeric columns to process.
+- Stores column list in `self._fitted_params["columns_to_process"]`.
+- Logs `"fit"` event.
 
-| Property | Type | Description |
-| -------- | ---- | ----------- |
-| `is_fitted` | `bool` | Returns `True` after the transformer has been fitted |
-| `fitted_params` | `Dict[str, Any]` | Stores learned parameters, including numeric columns. |
+#### `transform`
+```python
+transform(X: pd.DataFrame) -> pd.DataFrame
+```
+Transforms the DataFrame by generating new features.
+- Polynomial features: x², x³, ..., up to `degree`.
+- Interaction terms: all pairwise products of numeric columns (if `include_interactions=True`).
+- Logs `"transform"` event with details:
+    - Input shape
+    - Output shape
+    - List of new features created
+- Returns the transformed DataFrame.
 
-## Methods
-## Internal Methods
-## Exceptions
+#### `fit_transform`
+```python
+fit_transform(X: pd.DataFrame, y: Optional[pd.Series] = None) -> pd.DataFrame
+```
+Convenience method that runs `fit()` followed by `transform()`.
+
+## Required Subclass Hooks
+
+#### `_fit`
+```python
+_fit(X: pd.DataFrame, y: Optional[pd.Series] = None) -> None
+```
+- Determines which numeric columns will be used for feature generation.
+- Stores result in `self._fitted_params["columns_to_process"]`.
+
+#### `_transform`
+```python
+_transform(X: pd.DataFrame) -> pd.DataFrame
+```
+- Generates polynomial and interaction features for numeric columns.
+- Returns transformed DataFrame with new features added.
+
+## Dunder & Utility Methods
+
+#### `repr`
+```python
+__repr__() -> str
+```
+Returns a string representation showing `degree` and whether interaction terms are included.
+
+## Example Usage
+
+```python
+import pandas as pd
+from transfory import FeatureGenerator
+
+df = pd.DataFrame({
+    'x1': [1, 2, 3],
+    'x2': [4, 5, 6],
+    'y': [7, 8, 9]
+})
+
+# Generate polynomial features and interactions
+fg = FeatureGenerator(degree=3, include_interactions=True)
+df_transformed = fg.fit_transform(df)
+print(df_transformed)
+```
