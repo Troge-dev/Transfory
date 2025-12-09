@@ -3,14 +3,6 @@
 ## Overview  
 `Encoder` is a categorical data transformer that converts string or categorical columns into numerical representations using either **label encoding** or **one-hot encoding**. It inherits from `BaseTransformer` and follows the standard `fit → transform` workflow.
 
-- `fit`, `transform`, and `fit_transform`
-- Input validation for pandas DataFrames  
-- Recording fitted parameters  
-- Saving and loading state  
-- Optional logging via `BaseTransformer`
-
-It learns category mappings during `fit` and applies them during `transform`.
-
 ## Constructor  
 
 ```python
