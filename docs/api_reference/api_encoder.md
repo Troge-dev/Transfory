@@ -52,7 +52,7 @@ Inherited from `BaseTransformer`.
 
 ## Methods
 
-`fit`
+#### `fit`
 
 ```python
 fit(X: pd.DataFrame, y: Optional[pd.Series] = None) -> Encoder
@@ -66,14 +66,14 @@ self._fitted_params["mappings"]
 ```
 Raises `FrozenTransformerError` if the transformer is frozen.
 
-`transform`
+#### `transform`
 
 ```python
 transform(X: pd.DataFrame) -> pd.DataFrame
 ```
 Encodes categorical values using mappings learned during `fit`.
 
-#### Behavior by Method:
+**Behavior by Method:**
 
 **Label Encoding**
 
@@ -91,14 +91,14 @@ Encodes categorical values using mappings learned during `fit`.
   - `"error"` → raises ValueError
 - Raises `NotFittedError` if called before `fit`.
 
-`fit_transform`
+#### `fit_transform`
 
 ```python
 fit_transform(X: pd.DataFrame, y: Optional[pd.Series] = None) -> pd.DataFrame
 ```
 Convenience method that performs `fit` followed by `transform`.
 
-`freeze`
+#### `freeze`
 
 ```python
 freeze() -> None
@@ -106,28 +106,28 @@ freeze() -> None
 
 Prevents further calls to `fit`.
 
-`unfreeze`
+#### `unfreeze`
 
 ```python
 unfreeze() -> None
 ```
 Allows fitting again after freezing.
 
-`save`
+#### `save`
 
 ```python
 save(filepath: str) -> None
 ```
 Saves the transformer state to disk using `joblib`.
 
-`load`
+#### `load`
 
 ```python
 load(filepath: str) -> Encoder
 ```
 Loads a saved transformer from disk.
 
-`_validate_input` (Inherited)
+#### `_validate_input` (Inherited)
 
 ```python
 _validate_input(X: pd.DataFrame, require_same_columns: bool = False) -> pd.DataFrame
@@ -137,7 +137,7 @@ Ensures input is a pandas DataFrame and optionally checks column consistency.
 
 ## Internal Methods
 
-`_fit`
+#### `_fit`
 
 ```python
 _fit(X: pd.DataFrame, y=None)
@@ -146,7 +146,7 @@ Finds all unique categories per categorical column and stores their mappings int
 - For `"label"`: stores `{category: index}`.
 - For `"onehot"`: stores `list of categories`.
 
-`_transform`
+#### `_transform`
 
 ```python
 _transform(X: pd.DataFrame) -> pd.DataFrame
