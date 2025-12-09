@@ -12,7 +12,7 @@ FeatureGenerator(
     name: Optional[str] = None,
     logging_callback: Optional[Callable[[str, dict], None]] = None
 )
-
+```
 
 ## Paraneters
 
