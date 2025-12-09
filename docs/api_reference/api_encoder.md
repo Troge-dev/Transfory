@@ -1,7 +1,7 @@
 # Encoder API Reference
 
 ## Overview  
-`Encoder` is a categorical data transformer that converts string or categorical columns into numerical representations using either **label encoding** or **one-hot encoding**. It inherits from `BaseTransformer` and supports:
+`Encoder` is a categorical data transformer that converts string or categorical columns into numerical representations using either **label encoding** or **one-hot encoding**. It inherits from `BaseTransformer` and follows the standard `fit → transform` workflow.
 
 - `fit`, `transform`, and `fit_transform`
 - Input validation for pandas DataFrames  
@@ -15,152 +15,91 @@ It learns category mappings during `fit` and applies them during `transform`.
 
 ```python
 Encoder(
-    method: str = "onehot",
-    handle_unseen: str = "ignore",
-    name: Optional[str] = None
+    method="onehot",
+    handle_unseen="ignore",
+    name=None
 )
 ```
 ## Parameters
 
-| Parameter  | Type | Description |
-| ---------  | ---- | ------------ |
-| `method`    | `str`  | Encoding method to use. Options: `"label"`, `"onehot"`. |
-| `handle_unsern` | `str`  | How to handle unseen categories during transform. Options: `"ignore"`, `"error"`. |
+| Parameter  | Type | Default    | Description |
+| ---------  | ---- | ---------- | --------|
+| `method`   | `str` | `"onehot"` | Encoding method. Options: `"label"`, `"onehot"`.          |
+| `handle_unseen` | `str` | `"ignore"` | How to handle unseen categories during transform. Options: `"ignore"`, `"error"`.|
+| `name` | `str` or `None` | `None`| Optional custom name of the transformer. |
 
 ## Supported Encoding Methods 
 
-| Method | Description |
-| ------ | ----------- |
-| `label` | Converts categories into integer labels. |
-| `onehot` | Creates binary columns for each category. |
+#### 1. Label Encoding (`method="label"`)
 
-## Unseen Category Handling
+Each category is converted into a numeric ID.
 
-| Mode | Behavior |
-| ---- | -------- |
-| `ignore` | Unseen values are encoded as `-1` (label) or ignored (onehot). |
-| `error` | Raises a `ValueError` when unseen categories appear. |
+Example: 
+```python
+Gender → {"Male": 0, "Female": 1}
+```
+Unseen values:
+- `"ignore"` → converted to `-1`
+- `"error"` → raises ValueError
 
-## Properties
+#### 2. One-Hot Encoding (`method="onehot"`)
 
-Inherited from `BaseTransformer`.
+Creates a new column for each category.
 
-| Property | Type | Description |
-| -------- | ---- | ----------- |
-| `is_fitted` | `bool` | Returns `True` after the transformer has been fitted |
-| `fitted_params` | `Dict[str, Any]` | Stores learned category mappings. |
+Example:
+```python
+City → City_Manila, City_Cebu, City_Davao
+```
+The original column is removed after encoding.
 
 ## Methods
 
-#### `fit`
-
-```python
-fit(X: pd.DataFrame, y: Optional[pd.Series] = None) -> Encoder
-```
-
-Learns unique category values for each categorical column.
-- Only columns with object or category dtype are processed.
-- Stores learned mappings in:
+#### `fit(X, y=None)`
+Learns the unique categories from categorical columns.
+- Detects columns with type: `object` or `category`
+- Stores mappings in:
 ```python
 self._fitted_params["mappings"]
 ```
-Raises `FrozenTransformerError` if the transformer is frozen.
 
-#### `transform`
+#### `transform(X) → pd.DataFrame`
+Applies encoding using the learned mappings.
+- Behaviors are `label encoding` and `one-hot encoding`.
 
+#### `fit_transform(X, y=None)`
+Shortcut for:
 ```python
-transform(X: pd.DataFrame) -> pd.DataFrame
-```
-Encodes categorical values using mappings learned during `fit`.
-
-**Behavior by Method:**
-
-**Label Encoding**
-
-- Known categories → mapped to integers.
-- Unseen categories:
-  - `"ignore"` → replaced with -1
-  - `"error"` → raises ValueError
-
-**One-Hot Encoding**
-
-- Creates one binary column per known category.
-- Drops original categorical columns.
-- Unseen categories:
-  - `"ignore"` → ignored
-  - `"error"` → raises ValueError
-- Raises `NotFittedError` if called before `fit`.
-
-#### `fit_transform`
-
-```python
-fit_transform(X: pd.DataFrame, y: Optional[pd.Series] = None) -> pd.DataFrame
-```
-Convenience method that performs `fit` followed by `transform`.
-
-#### `freeze`
-
-```python
-freeze() -> None
+fit(X)
+transform(X)
 ```
 
-Prevents further calls to `fit`.
+## Learned Attributes
+| Attribute                    | Description                         |
+| ---------------------------- | ----------------------------------- |
+| `_fitted_params["mappings"]` | Stores category mappings per column |
 
-#### `unfreeze`
-
+## String Representation
 ```python
-unfreeze() -> None
+repr(encoder)
 ```
-Allows fitting again after freezing.
+Returns:
+```text
+Encoder(method='onehot', handle_unseen='ignore')
+```
 
-#### `save`
-
+## Example Usage
 ```python
-save(filepath: str) -> None
+from transfory.encoder import Encoder
+import pandas as pd
+
+df = pd.DataFrame({
+    "city": ["Manila", "Cebu", "Davao"],
+    "gender": ["M", "F", "M"]
+})
+
+enc = Encoder(method="onehot")
+enc.fit(df)
+df_encoded = enc.transform(df)
+
+print(df_encoded)
 ```
-Saves the transformer state to disk using `joblib`.
-
-#### `load`
-
-```python
-load(filepath: str) -> Encoder
-```
-Loads a saved transformer from disk.
-
-#### `_validate_input` (Inherited)
-
-```python
-_validate_input(X: pd.DataFrame, require_same_columns: bool = False) -> pd.DataFrame
-```
-Ensures input is a pandas DataFrame and optionally checks column consistency.
-
-
-## Internal Methods
-
-#### `_fit`
-
-```python
-_fit(X: pd.DataFrame, y=None)
-```
-Finds all unique categories per categorical column and stores their mappings internally.
-- For `"label"`: stores `{category: index}`.
-- For `"onehot"`: stores `list of categories`.
-
-#### `_transform`
-
-```python
-_transform(X: pd.DataFrame) -> pd.DataFrame
-```
-Encodes the DataFrame using stored mappings.
-- Applies either label or one-hot encoding
-- Handles unseen values based on `handle_unseen`.
-- Logs transformation details using `_log()`.
-
-## Exceptions
-
-| Exceptions | When Raised |
-| ---------- | ----------- |
-| `NotFittedError` | When `transform` is called before `fit`. |
-| `FrozenTransformerError` | When `fit` is called after freezing. |
-| `ValueError` | If an unsupported method is used or unseen values appear with `handle_unseen="error"`. |
-
