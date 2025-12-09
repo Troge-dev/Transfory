@@ -20,78 +20,86 @@ Encoder(
 | `handle_unseen` | `str` | `"ignore"` | How to handle unseen categories during transform. Options: `"ignore"`, `"error"`.|
 | `name` | `str` or `None` | `None`| Optional custom name of the transformer. |
 
-## Supported Encoding Methods 
+## Fitted Parameters
+| Key    | Description |
+| -------| ----------- |
+| `mappings` | Dictionary mapping column names to either label mapping (`dict`) or list of unique categories (`list`) depending on the encoding method. |
 
-#### 1. Label Encoding (`method="label"`)
+## Core Public Methods
 
-Each category is converted into a numeric ID.
-
-Example: 
+#### `fit`
 ```python
-Gender → {"Male": 0, "Female": 1}
+fit(X: pd.DataFrame, y: Optional[pd.Series] = None) -> Encoder
 ```
-Unseen values:
-- `"ignore"` → converted to `-1`
-- `"error"` → raises ValueError
+Fits the encoder to the DataFrame.
+- Determines unique categories per categorical column.
+- Stores mappings in `self._fitted_params["mappings"]`.
+- Logs the `"fit"` event.
 
-#### 2. One-Hot Encoding (`method="onehot"`)
-
-Creates a new column for each category.
-
-Example:
+#### `transform`
 ```python
-City → City_Manila, City_Cebu, City_Davao
+transform(X: pd.DataFrame) -> pd.DataFrame
 ```
-The original column is removed after encoding.
+Transforms the DataFrame using the fitted encoding.
+- **Label Encoding:**
+    - Maps known categories to integers.
+    - Handles unseen values based on handle_unseen.
+- **One-hot Encoding:**
+    - Creates a binary column for each category in each column.
+    - Drops original categorical columns.
+    - Handles unseen values based on `handle_unseen`.
+- Logs the `"transform"` event with details like input/output shape and new columns added.
+- Raises `NotFittedError` if called before `fit`.
 
-## Methods
-
-#### `fit(X, y=None)`
-Learns the unique categories from categorical columns.
-- Detects columns with type: `object` or `category`
-- Stores mappings in:
+#### `fit_transform`
 ```python
-self._fitted_params["mappings"]
+fit_transform(X: pd.DataFrame, y: Optional[pd.Series] = None) -> pd.DataFrame
 ```
+Convenience method that runs `fit()` followed by `transform()`.
 
-#### `transform(X) → pd.DataFrame`
-Applies encoding using the learned mappings.
-- Behaviors are `label encoding` and `one-hot encoding`.
+## Required Subclass Hooks
 
-#### `fit_transform(X, y=None)`
-Shortcut for:
+#### `_fit`
 ```python
-fit(X)
-transform(X)
+_fit(X: pd.DataFrame, y: Optional[pd.Series] = None) -> None
 ```
+- Computes unique categories for each categorical column.
+- Populates `self._fitted_params["mappings"]`.
 
-## Learned Attributes
-| Attribute                    | Description                         |
-| ---------------------------- | ----------------------------------- |
-| `_fitted_params["mappings"]` | Stores category mappings per column |
-
-## String Representation
+#### `_transform`
 ```python
-repr(encoder)
+_transform(X: pd.DataFrame) -> pd.DataFrame
 ```
-Returns:
-```text
-Encoder(method='onehot', handle_unseen='ignore')
+- Applies label or one-hot encoding using the fitted mappings.
+- Handles unseen categories according to `handle_unseen`.
+- Returns the transformed DataFrame.
+
+## Dunder & Utility Methods
+
+#### `repr`
+```python
+__repr__() -> str
 ```
+Returns a string representation showing the encoding method and unseen category strategy.
 
 ## Example Usage
+
 ```python
-from transfory.encoder import Encoder
 import pandas as pd
+from transfory import Encoder
 
 df = pd.DataFrame({
-    "city": ["Manila", "Cebu", "Davao"],
-    "gender": ["M", "F", "M"]
+    'color': ['red', 'blue', 'green', 'red'],
+    'shape': ['circle', 'square', 'triangle', 'circle']
 })
 
-enc = Encoder(method="onehot")
-enc.fit(df)
-df_encoded = enc.transform(df)
-
+# One-hot encoding
+encoder = Encoder(method='onehot')
+df_encoded = encoder.fit_transform(df)
 print(df_encoded)
+
+# Label encoding
+encoder_label = Encoder(method='label')
+df_label_encoded = encoder_label.fit_transform(df)
+print(df_label_encoded)
 ```
