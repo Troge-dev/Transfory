@@ -1,141 +1,74 @@
 # MissingValueHandler API Reference
 
-## Overview  
-`MissingValueHandler` is a transformer used to handle missing values in a pandas DataFrame using different imputation strategies. It inherits from `BaseTransformer` and fully supports:
+## Overview
+`MissingValueHandler` is a transformer that fills missing values in a `pandas.DataFrame` using different strategies. It can handle numeric and categorical data and supports constant values for imputation.
 
-- `fit`, `transform`, and `fit_transform`
-- Input validation for pandas DataFrames  
-- Recording fitted parameters  
-- Saving and loading state  
-- Optional logging via `BaseTransformer`
+### Strategies
+- `mean`: Fills missing numeric values with the column mean.  
+- `median`: Fills missing numeric values with the column median.  
+- `mode`: Fills missing numeric or categorical values with the mode.  
+- `constant`: Fills missing values with a user-provided `fill_value`.
 
-It computes replacement values during `fit` and applies them during `transform`.
-
-## Constructor  
+## Constructor
 
 ```python
-MissingValueHandler(
-    strategy: str = "mean",
-    fill_value: Any = None,
-    name: Optional[str] = None
-)
+MissingValueHandler(strategy: str = "mean", fill_value: Any = None, name: Optional[str] = None)
 ```
 ## Parameters
 
 | Parameter  | Type | Description |
-| ---------  | ---- | ------------ |
-| `srategy`    | `str`  | Strategy used to fill missing values. Options: `"mean"`, `"median"`, `"mode"`, `"constant"` |
-| `fill_value` | `Any`  | Required only when `strayegy="constant"`. This value will replace missing entries. |
+| ---------- | -----| ----------- |
+| strategy   | str  | The imputation strategy to use. Options: `'mean'`, `'median'`, `'mode'`, `'constant'`. Defaults to `'mean'`. |
+| fill_value | Any  | Required if `strategy='constant'`. Value to fill missing entries. |
+| name       | str, optional | Custom name for the transformer instance. Defaults to `"MissingValueHandler(strategy='...')"` |
 
-## Supported Strategies
+## Fitted Parameters
 
-| Strategy | Description |
-| -------- | ----------- |
-| mean     | Replaces missing values using the column mean (numeric only). |
-| median   | Replaces missing values using ghe column median (numeric only). |
-| mode     | Replaces missing calues using the most frequent value (numeric or categorical). |
-| constant | Replaces missing values using `fill_values`. |
+| Parameter     | Description                                                                |
+| ------------- | -------------------------------------------------------------------------- |
+| `fill_values` | Dictionary of column-specific imputation values calculated during fitting. |
 
-## Properties
+## Core Public Methods
 
-Inherited from `BaseTransformer`
-
-| Property | Type | Description |
-| -------- | ---- | ----------- |
-| `is_fitted` | `bool` | Returns `True` after the transformer has been fitted |
-| `fitted_params` | `Dict[str, Any]` | Stores learned imputation values (`fill_values`) |
-
-## Methods
-
-`fit`
-
+#### `fit`
 ```python
 fit(X: pd.DataFrame, y: Optional[pd.Series] = None) -> MissingValueHandler
 ```
-Computes the replacement values for each column based on the selected strategy. 
-- Only columns with missing values are processed.
-- Learned values are stored in:
+Calculates imputation values for each column according to the selected strategy and stores them in `_fitted_params`.
 
+#### `transform`
+``python
+Calculates imputation values for each column according to the selected strategy and stores them in _fitted_params.
+```
+Applies the stored imputation values to fill missing values in the DataFrame.
+
+#### `fit_transform`
+Convenience method that runs `fit` followed by `transform`.
+
+## Dunder & Utility Methods
+
+#### `repr`
 ```python
-self._fitted_params["fill_values"]
+__repr__() -> str
 ```
-Raises `FrozenTransformerError` if the transformer is frozen.
+Returns a string representing the transformer and its configuration.
 
-`transform`
-
+## Example Usage
 ```python
-transform(X: pd.DataFrame) -> pd.DataFrame
-```
-Fills missing values using the values learned during `fit`.
-- Uses `DataFrams.fillna()` with a dictionary of values.
-Raised `NotFittedError` if called before `fit`.
+import pandas as pd
+from transfory import MissingValueHandler
 
-`fit_transform`
+df = pd.DataFrame({
+    "age": [25, None, 30],
+    "sex": ["M", "F", None]
+})
 
-```python
-fit_transform(X: pd.DataFrame, y: Optional[pd.Series] = None) -> pd.DataFrame
-```
-
-Convenience method that performs `fit` followed by `transform`.
-
-`freeze`
-  
-```python
-freeze() -> None
-```
-Prevents further calls to `fit`.
-
-`unfreeze`
-
-```python
-unfreeze() -> None
-```
-Allows fitting again after freezing.
-
-`save`
-
-```
-save(filepath: str) -> None
-```
-Saves the transformer state to disk using `joblib`.
-
-`load`
-
-```python
-load(filepath: str) -> MissingValueHandler
-```
-Loads a saved transformed from disk
-
-`_validate_input` (Inherited)
-
-```python
-_validate_input(X: pd.DataFrame, require_same_columns: bool = False) -> pd.DataFrame
-```
-Ensures inout is a pandan DataFrame and optionally checks column consistency.
-
-## Internal Methods
-
-`_fit`
-
-```python
-_fit(X: pd.DataFrame, y=None)
-```
-Computes fill values per column based on the chosen strategy and stores them initially in:
-```python
-self._fill_values
+# Fill missing numeric values with mean, and categorical values with mode
+imputer = MissingValueHandler(strategy="mode")
+imputer.fit_transform(df)
 ```
 
-`_transform`
-
-```python
-_transform(X: pd.DataFrame) -> pd.DataFrame
-```
-Applies the stored `fill_values` to replace missing values in the DataFrame.
-
-## Exceptions
-
-| Exception | When Raised |
-| --------- | ----------- |
-| `NotFittedError` | When `transform` is called before `fit`. |
-| `FrozenTransformedError` | When `fit` is called after `freezing`. |
-| `ValueError` | If an unsupported strategy is used or `fill_value` is missing for `"constant"`. |
+## Notes
+- Automatically selects numeric or categorical handling depending on the strategy.
+- `constan`t strategy requires `fill_value`.
+- Stores fitted values in `_fitted_params["fill_values"]` for logging, persistence, or reporting.
