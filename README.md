@@ -206,6 +206,28 @@ from transfory.featuregen import FeatureGenerator
 feature_gen = FeatureGenerator(degree=2, include_interactions=True)
 ```
 
+
+## Comparison: Scikit-Learn vs Transfory
+
+`Transfory` is inspired by scikit-learn, but it is built specifically to be **more transparent, Pandas-native, and beginner-friendly**.
+This table summarizes the key differences.
+
+### Feature Comparison Table
+
+| Aspect                     | **Scikit-Learn**                                                        | **Transfory**                                                              |
+| -------------------------- | ----------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| **Design Philosophy**      | Highly optimized ML preprocessing and modeling framework.               | Explainable, modular, beginner-friendly data transformation toolkit.       |
+| **Data Structure Support** | Primarily works with NumPy arrays. Pandas support is secondary.         | 100% Pandas-native. Always returns DataFrames with column names preserved. |
+| **Explainability**         | Minimal. Transformers do not log what they did unless manually wrapped. | Built-in **InsightReporter** logs every step in human-readable form.       |
+| **Pipeline System**        | Powerful, but verbose and produces NumPy arrays by default.             | Simpler, cleaner, DataFrame-preserving pipelines.                          |
+| **ColumnTransformer**      | Flexible but difficult to inspect; output column names often tricky.    | Column names preserved, easy to debug, supports explainability.            |
+| **Error Messages**         | Often cryptic (NumPy errors, shape mismatch errors).                    | Human-friendly, transformer-specific error messages.                       |
+| **Extensibility**          | Requires subclassing and adhering to strict API.                        | Extremely easy—just subclass `BaseTransformer`.                            |
+| **Transform Output**       | NumPy array (unless wrapped).                                           | Pandas DataFrame (always).                                                 |
+| **Logging**                | None by default.                                                        | Automatic logging through callbacks.                                       |
+| **Intended Users**         | Production ML engineers, researchers.                                   | Students, data analysts, instructors, prototyping ML pipelines.            |
+
+
 ## Demos
 
 For more in-depth examples, check out the Jupyter Notebooks in the `/demo` directory. They provide interactive, step-by-step walkthroughs of the library's capabilities on real datasets.
@@ -218,6 +240,29 @@ For more in-depth examples, check out the Jupyter Notebooks in the `/demo` direc
 ## Contributing
 
 Contributions are welcome! If you have a feature request, bug report, or want to improve the documentation, please open an issue or submit a pull request on the GitHub repository.
+
+## Contributors
+
+This project was made possible by the following contributors:
+
+### Project Lead & Core Architecture
+
+*   **Rogelio Q. Mandamian III** ([mandamian.rogelioiii@gmail.com](mailto:mandamian.rogelioiii@gmail.com))
+    *   Project lead, architect of the core framework (`BaseTransformer`, `Pipeline`, `ColumnTransformer`), and developer of the `InsightReporter`.
+
+### Module Development
+
+*   **Jose Gabriel P. Yana** ([gabrielpaumaryana@gmail.com](mailto:gabrielpaumaryana@gmail.com))
+    *   Responsible for the implementation of `Scaler`, `MissingValueHandler`, `Encoder`, and `FeatureGenerator`.
+*   **Renell josh cuerquis** (renelljoshcuerquis@gmail.com)
+    *   Responsible for the implementation of `Scaler`, `MissingValueHandler`, `Encoder`, and `FeatureGenerator`.
+
+### Documentation
+
+*   **Ashlanie L. Pandi** (pandiashlanie16@gmail.com)
+    *   Responsible for the creation and refinement of all user-facing documentation.
+*   **Eleah Jaizel T. Cabili** (cabili.eleahjaizel@gmail.com)
+    *   Responsible for the creation and refinement of all user-facing documentation.
 
 ## License
 
