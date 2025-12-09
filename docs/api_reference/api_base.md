@@ -6,21 +6,29 @@
 
 * `fit`, `transform`, and `fit_transform` methods  
 * Input validation for pandas DataFrames  
-* Recording fitted parameters  
+* Recording fitted parameters
+* Freezing to prevent refitting
 * Saving/loading transformer state  
-* Optional logging for tracking transformations  
+* Optional structured logging via `logging_callback`
+* Custom serialization support 
 
 All custom transformers in Transfory should inherit from `BaseTransformer`. 
 
 ## Constructor
 
 ```python
-BaseTransformer(name: Optional[str] = None, logging_callback: Optional[Callable[[str, Dict[str, Any]], None]] = None)
+BaseTransformer(
+    name: Optional[str] = None,
+    logging_callback: Optional[Callable[[str, Dict[str, Any]], None]] = None
+)
 ```
 ## Parameters
 
-* `name` (Optional[str]): Human-readable name for the transformer. Defaults to class name.
-* `logging_callback` (Optional[callable]): Function called after `fit` or `transform` to log events. Signature: `(step_name: str, details: dict)`
+| Parameter        | Type                                            | Description         |
+| ---------------- | ----------------------------------------------- | ------------------------------------------- |
+| name             | Optional[str]             | Human-readable name for the transformer. Defaults to the class name. |
+| logging_callback | Optional[Callable[[str, Dict[str, Any]], None]] | Optional logger function called after `fit` or `transform`.          |
+
 
 ## Properties
 
@@ -29,58 +37,193 @@ BaseTransformer(name: Optional[str] = None, logging_callback: Optional[Callable[
 | `is_fitted`     | `bool` | Returns `True` if transformer has been fitted.   |
 | `fitted_params` | `Dict[str, Any]` | Dictionary of parameters learned during fitting. |
 
-## Methods
+## Core Public Methods
 
-`fit`
+#### `fit`
 ```python
 fit(X: pd.DataFrame, y: Optional[pd.Series] = None) -> BaseTransformer
 ```
-*Fits the transformer to X (and optionally y).*
-Raises `FrozenTransformerError` if transformer is frozen.
+Fits the transformer to the input DataFrame.
+- Validates input type
+- Calls subclass `_fit()`
+- Stores fitted metadata
+- Logs the `"fit"` event
+- Raises `FrozenTransformerError` if frozen
 
-`transform`
+#### `transform`
 ```python
 transform(X: pd.DataFrame) -> pd.DataFrame
 ```
+Transforms the DataFrame using learned parameters.
+- Requires prior fitting
+- Validates column consistency
+- Calls subclass `_transform()`
+- Logs the `"transform"` event
+- Raises `NotFittedError` if called before fit
 
-*Transforms the data using the learned parameters.*
-Raises `NotFittedError` if transformer is not fitted.
-
-`fit_transform`
+#### `fit_transform`
 ```python
 fit_transform(X: pd.DataFrame, y: Optional[pd.Series] = None) -> pd.DataFrame
 ```
-*Convenience method that calls *`fit`* then *`transform`*.*
+Convenience method that runs `fit()` followed by `transform()`.
 
-`freeze`/`unfreeze`
+### Freezing Control 
+
+#### `freeze`
 ```python
-Convenience method that calls fit then transform.
+freeze() -> None
 ```
-Prevents further calls to `fit`.
+| Behavior | Description                          |
+| -------- | ------------------------------------ |
+| Effect   | Prevents any future calls to `fit()` |
+
+#### `unfreeze`
 ```python
 unfreeze() -> None
 ```
-Allows `fit` again after freezing.
+| Behavior | Description          |
+| -------- | -------------------- |
+| Effect   | Allows fitting again |
 
-`save`/`load`
+### Persistence
+
+#### `save`
 ```python
 save(filepath: str) -> None
 ```
-Saves the transformer to disk using `joblib`.
+| Feature     | Behavior                              |
+| ----------- | ------------------------------------- |
+| Storage     | Uses `joblib`                         |
+| Directories | Automatically creates missing folders |
+
+#### `load`
 ```python
 load(filepath: str) -> BaseTransformer
 ```
-Loads a transformer from disk.
+| Feature     | Behavior                                     |
+| ----------- | -------------------------------------------- |
+| Type Safety | Ensures loaded object is a `BaseTransformer` |
 
-`_validate_input`
+### Validation
+
+#### `_validate_input`
 ```python
-_validate_input(X: pd.DataFrame, require_same_columns: bool = False) -> pd.DataFrame
+_validate_input(
+    X: pd.DataFrame,
+    require_same_columns: bool = False
+) -> pd.DataFrame
 ```
-Ensures X is a pandas DataFrame.
-Optionally checks that columns match those seen during `fit`.
+| Check           | Purpose                                       |
+| --------------- | --------------------------------------------- |
+| DataFrame type  | Ensures input is pandas DataFrame             |
+| Column checking | Ensures fitted columns exist during transform |
+| Safety          | Returns a shallow copy                        |
+
+### Logging
+
+#### `log`
+
+```python
+_log(
+    event: str,
+    details: Dict[str, Any],
+    step_name: Optional[str] = None,
+    config: Optional[Dict[str, Any]] = None,
+    transformer_name: Optional[str] = None
+)
+```
+| Feature          | Behavior                             |
+| ---------------- | ------------------------------------ |
+| Safe logging     | Never crashes the pipeline           |
+| Auto config      | Extracts public attributes           |
+| External support | Used by InsightReporter or pipelines |
+
+### Serialization
+
+#### `__getstate__`
+| Feature        | Behavior                                        |
+| -------------- | ----------------------------------------------- |
+| Logging safety | Excludes `_logging_callback` from serialization |
+
+#### `__setstate__`
+| Feature | Behavior                 |
+| ------- | ------------------------ |
+| Restore | Reloads serialized state |
+
+### Required Subclass Hooks
+
+#### `_fit`
+```python
+_fit(X: pd.DataFrame, y: Optional[pd.Series] = None) -> None
+```
+| Responsibility                   |
+| -------------------------------- |
+| Learn parameters                 |
+| Store into `self._fitted_params` |
+
+#### `_transform`
+```python
+_transform(X: pd.DataFrame) -> pd.DataFrame
+```
+| Responsibility               |
+| ---------------------------- |
+| Apply learned parameters     |
+| Return transformed DataFrame |
+
+### Dunder & Utility Methods
+| Method     | Purpose                             |
+| ---------- | ----------------------------------- |
+| `__repr__` | Shows name, fit status, param keys  |
+| `__eq__`   | Equality check                      |
+| `__len__`  | Returns number of fitted parameters |
 
 ## Exceptions
+| Exception              | When Raised                             |
+| ---------------------- | --------------------------------------- |
+| NotFittedError         | When `transform` is called before `fit` |
+| FrozenTransformerError | When `fit` is called after freezing     |
+| TypeError              | When input is not a DataFrame           |
+| ValueError             | When required columns are missing       |
 
-* `NotFittedError` – Raised if you call `transform` before `fit`.  
-* `FrozenTransformerError` – Raised if you try to `fit` a frozen transformer. 
+# ExampleScaler API Reference
 
+## Overview
+
+`ExampleScaler` is a minimal demonstration subclass of BaseTransformer that performs standardization: **x = (x - mean) / std**
+
+
+## Constructor
+
+```python
+​ExampleScaler(
+    columns: Optional[Iterable[str]] = None,
+    name: Optional[str] = None,
+    logging_callback: Optional[Callable[[str, Dict[str, Any]], None]] = None
+)
+```
+
+## Parameters
+| Parameter        | Type                    | Description                                                |
+| ---------------- | ----------------------- | ---------------------------------------------------------- |
+| columns          | Optional[Iterable[str]] | Columns to scale. If None, all numeric columns are scaled. |
+| name             | Optional[str]           | Custom transformer name                                    |
+| logging_callback | Optional[callable]      | Optional logger                                            |
+
+## Fitted Parameters
+| Key     | Description                   |
+| ------- | ----------------------------- |
+| means   | Mean per column               |
+| stds    | Standard deviation per column |
+| columns | Columns selected for scaling  |
+
+## Behavior
+
+#### `_fit`
+| Action                                 |
+| -------------------------------------- |
+| Computes means and standard deviations |
+
+#### `_transform`
+| Action                   |
+| ------------------------ |
+| Applies standard scaling |
